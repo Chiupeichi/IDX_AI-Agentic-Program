@@ -1,5 +1,3 @@
-# IDX_AI-Agentic-Program
-
 # IDX Multi-Agent Real Estate Assistant
 
 Production-grade, OpenClaw-powered multi-agent AI assistant built for the IDX Exchange AI Agentic Engineer Internship (Summer 2026). The assistant provides real-time MLS property search, market analytics, semantic recommendations, RAG-based knowledge retrieval, and WhatsApp + email communication over two live California MLS datasets.
