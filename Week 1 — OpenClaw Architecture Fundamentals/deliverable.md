@@ -1,123 +1,49 @@
-# IDX Multi-Agent Real Estate Assistant
+# Week 1 — OpenClaw Architecture Fundamentals
 
-Production-grade, OpenClaw-powered multi-agent AI assistant built for the IDX Exchange AI Agentic Engineer Internship (Summer 2026). The assistant provides real-time MLS property search, market analytics, semantic recommendations, RAG-based knowledge retrieval, and WhatsApp + email communication over two live California MLS datasets.
+## 1. Objective
+This week focused on understanding how OpenClaw routes user messages from WhatsApp through the runtime, skills, tools, and database layer before returning a response.
 
-## Overview
+## 2. Repository Architecture Mapping
 
-| | |
-|---|---|
-| **Runtime** | [OpenClaw](https://github.com/openclaw/openclaw) multi-agent orchestration framework |
-| **Data** | 667K+ MLS records across two MySQL tables |
-| **Channels** | WhatsApp, Email |
-| **Core capabilities** | NL property search, market analytics, embeddings/vector search, RAG, recommendations, multi-agent orchestration |
+| Concept | Location in Repository | Role |
+|---|---|---|
+| Channels | `src/channels` | Handles communication interfaces such as WhatsApp |
+| Gateway | `src/gateway` | Receives and forwards channel messages into OpenClaw |
+| Agent Runtime | `src/agents/runtime` | Connects OpenClaw agent logic to the LLM runtime |
+| Skills | `skills/` | Modular capabilities the agent can use |
+| Tools | `src/agents/tools` | Executable functions called by the agent |
+| Shared Packages | `packages/` | Core libraries such as `agent-core`, `llm-core`, and memory SDK |
+| MySQL Database | local `idx_exchange` schema | Stores MLS datasets such as `rets_property` and `california_sold` |
 
-## Databases
+## 3. Workflow Diagram
 
-### `rets_property` — Active MLS Listings
-~228,410 active California listings, 130+ fields (address, price, beds/baths, sqft, agent info, HOA, photos, full-text remarks with `FULLTEXT` index).
+User  
+→ WhatsApp  
+→ OpenClaw Gateway  
+→ Agent Runtime  
+→ Skill Selector / Orchestrator  
+→ MLS Skill  
+→ Tool Execution  
+→ MySQL Database  
+→ Query Results  
+→ Agent Response  
+→ WhatsApp  
+→ User
 
-### `california_sold` — Sold Transactions & Comps
-~439,167 sold/leased/closed transactions (2021–2025), 46 fields covering close price, days on market, agent/office info, and property attributes. Used for market analytics and comp validation.
+## 4. Runtime Notes
 
-Tables join via `rets_property.L_ListingID` ↔ `california_sold.ListingKey`, or on `city` + `postal code` for market-level analysis.
+During source-code exploration, I reviewed `src/agents/runtime/index.ts` and found that OpenClaw wraps the shared `CoreAgent` from `packages/agent-core`. The runtime connects the agent to reusable LLM functions such as `completeSimple` and `streamSimple`.
 
-## Architecture
+I also reviewed the beginning of `src/agents/runtime/proxy.ts`, which handles proxied LLM streaming events, including text generation, thinking events, tool-call events, completion, and error handling.
 
-```
-User → WhatsApp / Email → OpenClaw Runtime → Orchestrator → Skill Agents → MySQL (rets_property / california_sold) → Formatted Response → User
-```
+## 5. Example MLS Query Flow
 
-**Agents**
-- `propertySearchAgent` — structured filter search over `rets_property`
-- `marketStatsAgent` — trend/comp aggregations over `california_sold`
-- `recommendationAgent` — hybrid (structured + embedding) similarity scoring, comp-validated
-- `ragAgent` — grounded answers over MLS field definitions & real estate terminology
-- `emailDraftAgent` — draft-then-approve email summaries and reports
+Example user query:
 
-## Tech Stack
+> Find homes in Irvine under $1M.
 
-- **Orchestration:** OpenClaw
-- **Backend:** Node.js / TypeScript, Python
-- **Database:** MySQL (`idx_exchange` schema)
-- **AI:** OpenAI embeddings (`text-embedding-3-small`), GPT-4o-mini for RAG generation
-- **Data tooling:** pandas, scikit-learn, SQLAlchemy
-- **Channels:** WhatsApp (via OpenClaw channel), Nodemailer (email)
+The WhatsApp message enters OpenClaw through the channel layer. The gateway forwards the message to the agent runtime. The orchestrator determines that the request should be handled by a property-search skill. The skill calls a database tool, which queries the local MySQL MLS database. The result is returned to the agent, formatted into a natural-language response, and sent back to the user through WhatsApp.
 
-## Getting Started
+## 6. Key Takeaway
 
-### Prerequisites
-- Node.js + npm
-- Python 3.x
-- MySQL
-- OpenAI API key
-- WhatsApp account (for channel linking)
-
-### Setup
-
-```bash
-# Clone and install OpenClaw
-git clone https://github.com/openclaw/openclaw.git
-cd openclaw
-npm install
-openclaw onboard
-
-# Python environment
-python3 -m venv venv
-source venv/bin/activate
-pip install pandas openai mysql-connector-python sqlalchemy scikit-learn numpy
-```
-
-### Database Import
-
-```bash
-mysql -u root -p -e "CREATE DATABASE idx_exchange CHARACTER SET utf8mb4;"
-mysql -u root -p idx_exchange < rets_property.sql
-mysql -u root -p idx_exchange < california_sold.sql
-```
-
-### Environment Variables
-
-Create a `.env` file (never commit this):
-
-```
-OPENAI_API_KEY=sk-...
-MYSQL_HOST=localhost
-MYSQL_USER=idx_user
-MYSQL_PASSWORD=your_secure_password
-MYSQL_DATABASE=idx_exchange
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASSWORD=your_app_password
-```
-
-### WhatsApp Channel
-
-```bash
-openclaw channels login --channel whatsapp
-# Scan the QR code in WhatsApp > Linked Devices
-```
-
-## Example Usage
-
-```
-User: "Show me 3-bedroom condos in Irvine under $1.5M with a pool."
-Agent: [returns matching active listings from rets_property]
-
-User: "Is now a good time to buy in San Diego?"
-Agent: [returns median price, DOM, list-to-close ratio, 12-month trend from california_sold]
-```
-
-## Safety Guardrails
-
-- Every outbound/destructive action (e.g., sending email) requires explicit human approval — emails are drafted, previewed, and only sent after confirmation.
-- Query results are capped at ≤50 rows; full dataset export/bulk-download is not permitted.
-- Secrets are stored only in `.env` and are never logged.
-- No agent operates autonomously without human oversight on outbound actions.
-
-## Project Status
-
-Built over a 12-week internship program, progressing from environment setup through NL search, database integration, conversational memory, market analytics, embeddings, RAG, multi-agent orchestration, and channel integration (WhatsApp + email), culminating in a capstone demo.
-
-## License
-
-Confidential — IDX Exchange Internship Program.
-
+OpenClaw is not just a direct ChatGPT wrapper. It is a multi-agent orchestration system with separate layers for channels, gateway routing, agent runtime, tools, skills, memory, and database access.
