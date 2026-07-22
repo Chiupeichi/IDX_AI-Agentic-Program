@@ -1,0 +1,23 @@
+{
+  "name": "idx-ai-internship",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "npm run week1 && npm run week2 && npm run week3 && npm run week4 && npm run week5",
+    "week1": "node --import tsx \"Week 1 — OpenClaw Architecture Fundamentals/testArchitecture.ts\"",
+    "week2": "node --import tsx \"Week 2 — Natural Language Property Search/testPropertySearch.ts\"",
+    "week3": "node --import tsx \"Week 3 – MLS Database Integration/testWeek3.ts\"",
+    "week4": "node --import tsx \"Week4 - Conversational Property Search Agent/testSession.ts\" && node --import tsx \"Week4 - Conversational Property Search Agent/testConversation.ts\"",
+    "week5": "node --import tsx \"Week 5 — Market Statistics Agent/testMarketStats.ts\"",
+    "week5:market": "node --import tsx \"Week 5 — Market Statistics Agent/cli.ts\""
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "dependencies": {
+    "dotenv": "17.4.2",
+    "mysql2": "3.22.6",
+    "tsx": "4.22.3"
+  }
+}

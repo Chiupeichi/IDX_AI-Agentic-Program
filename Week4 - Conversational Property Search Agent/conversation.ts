@@ -1,5 +1,9 @@
-import { parsePropertyQuery } from "../week2/propertySearch";
-import { searchActiveListings } from "../week3/searchListings";
+import { parsePropertyQuery } from "../Week 2 — Natural Language Property Search/propertySearch";
+import {
+  formatListingCard,
+  searchActiveListings,
+  type ListingRow,
+} from "../Week 3 – MLS Database Integration/searchListings";
 import {
   getSession,
   updateSession,
@@ -7,21 +11,12 @@ import {
   type UserSession,
 } from "./session";
 
-function formatListings(results: any[]): string {
+function formatListings(results: ListingRow[]): string {
   if (results.length === 0) {
     return "I couldn't find any matching active listings. Please try changing one of your preferences.";
   }
 
-  const cards = results.slice(0, 5).map((home, index) => {
-    return `
-${index + 1}. 🏠 ${home.L_Address}
-📍 ${home.L_City}, ${home.L_Zip}
-💰 $${Number(home.price).toLocaleString()}
-🛏 ${home.beds} beds | 🛁 ${home.baths} baths
-📐 ${home.sqft} sqft
-📷 ${home.PhotoCount ?? 0} photos
-`.trim();
-  });
+  const cards = results.slice(0, 5).map(formatListingCard);
 
   return `I found ${results.length} matching listings:\n\n${cards.join(
     "\n\n"
@@ -65,7 +60,7 @@ export async function handleMessage(
 
   const currentSession = getSession(userId);
 
-  const parsedFilters = await parsePropertyQuery(message);
+  const parsedFilters = parsePropertyQuery(message);
 
   const updates: Partial<UserSession> = {};
 
@@ -93,11 +88,11 @@ export async function handleMessage(
     updates.type = parsedFilters.type;
   }
 
-  if (parsedFilters.pool) {
+  if (parsedFilters.pool !== null) {
     updates.pool = parsedFilters.pool;
   }
 
-  if (parsedFilters.hasView) {
+  if (parsedFilters.hasView !== null) {
     updates.hasView = parsedFilters.hasView;
   }
 

@@ -42,7 +42,17 @@ export async function searchActiveListings(
   page = 1,
   limit = 10
 ) {
+  if (!Number.isInteger(page) || page < 1) {
+    throw new RangeError("page must be a positive integer");
+  }
+  if (!Number.isInteger(limit) || limit < 1 || limit > 50) {
+    throw new RangeError("limit must be an integer between 1 and 50");
+  }
+
   const offset = (page - 1) * limit;
+  if (!Number.isSafeInteger(offset)) {
+    throw new RangeError("pagination offset is too large");
+  }
 
   let sql = `
     SELECT
@@ -105,15 +115,26 @@ export async function searchActiveListings(
     params.push(filters.type);
   }
 
-    if (filters.pool) {
-  sql += " AND PoolPrivateYN IN ('1', 'True', 'true', 'Y', 'Yes')";
-}
+  if (filters.pool) {
+    sql += " AND PoolPrivateYN IN ('1', 'True', 'true', 'Y', 'Yes')";
+  }
 
-if (filters.hasView) {
-  sql += " AND ViewYN IN ('1', 'True', 'true', 'Y', 'Yes')";
-}
+  if (filters.hasView) {
+    sql += " AND ViewYN IN ('1', 'True', 'true', 'Y', 'Yes')";
+  }
 
-  sql += ` ORDER BY L_SystemPrice ASC LIMIT ${limit} OFFSET ${offset}`;
+  sql += " ORDER BY L_SystemPrice ASC LIMIT ? OFFSET ?";
+  params.push(limit, offset);
 
   return query<ListingRow>(sql, params);
+}
+
+export function formatListingCard(home: ListingRow, index?: number) {
+  const prefix = index === undefined ? "" : `${index + 1}. `;
+  return `${prefix}🏠 ${home.L_Address}
+📍 ${home.L_City}, ${home.L_Zip}
+💰 $${Number(home.price).toLocaleString()}
+🛏 ${home.beds} beds | 🛁 ${home.baths} baths
+📐 ${home.sqft} sqft
+📷 ${home.PhotoCount ?? 0} photos`;
 }
