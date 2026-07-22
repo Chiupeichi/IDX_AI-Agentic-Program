@@ -9,6 +9,7 @@
     "week2": "node --import tsx \"Week 2 — Natural Language Property Search/testPropertySearch.ts\"",
     "week3": "node --import tsx \"Week 3 – MLS Database Integration/testWeek3.ts\"",
     "week4": "node --import tsx \"Week4 - Conversational Property Search Agent/testSession.ts\" && node --import tsx \"Week4 - Conversational Property Search Agent/testConversation.ts\"",
+    "property:search": "node --import tsx \"Week4 - Conversational Property Search Agent/propertySearchCli.ts\"",
     "week5": "node --import tsx \"Week 5 — Market Statistics Agent/testMarketStats.ts\"",
     "week5:market": "node --import tsx \"Week 5 — Market Statistics Agent/cli.ts\""
   },

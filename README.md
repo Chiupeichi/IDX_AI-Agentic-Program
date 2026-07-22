@@ -9,7 +9,7 @@ OpenClaw-powered real-estate assistant built for the IDX Exchange AI Agentic Eng
 | **Runtime** | [OpenClaw](https://github.com/openclaw/openclaw) multi-agent orchestration framework |
 | **Data** | 140,279 locally supplied MLS-derived records across two MySQL tables |
 | **Channel target** | WhatsApp through OpenClaw |
-| **Implemented capabilities** | NL property search, conversational memory, sold comps, and city-level market analytics |
+| **Implemented capabilities** | NL city/landmark property search, interactive numbered selection, conversational memory, sold comps, and market analytics |
 
 ## Databases
 

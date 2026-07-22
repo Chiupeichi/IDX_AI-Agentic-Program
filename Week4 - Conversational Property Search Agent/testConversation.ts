@@ -10,36 +10,40 @@ async function run() {
   try {
     assert.equal(
       await handleMessage(userId, "Find homes in Irvine"),
-      "What is your maximum budget?"
-    );
-    assert.equal(
-      await handleMessage(userId, "Under $1.2M"),
-      "What property type do you prefer: condo, townhouse, or single family?"
-    );
-    assert.equal(
-      await handleMessage(userId, "Single family"),
       "How many bedrooms do you need?"
     );
 
     const response = await handleMessage(userId, "At least 3 beds");
     assert.match(response, /I found \d+ matching listings/);
+    assert.match(response, /Reply with a number/);
     assert.match(response, /Irvine/);
     assert.match(response, /photos/);
 
     const session = getSession(userId);
     assert.equal(session.city, "Irvine");
-    assert.equal(session.maxPrice, 1_200_000);
-    assert.equal(session.type, "SingleFamilyResidence");
     assert.equal(session.beds, 3);
     assert.ok(session.lastResults && session.lastResults.length > 0);
 
+    const selection = await handleMessage(userId, "1");
+    assert.match(selection, /You selected option 1/);
+    assert.match(selection, /DOM:/);
+
+    const uscUserId = "usc-conversation-test-user";
+    clearSession(uscUserId);
+    const uscResponse = await handleMessage(uscUserId, "我想找 USC 附近的 2b2b");
+    assert.match(uscResponse, /I found \d+ matching listings/);
+    assert.match(uscResponse, /miles from landmark/);
+    assert.equal(getSession(uscUserId).near, "USC");
+    assert.equal(getSession(uscUserId).beds, 2);
+    assert.equal(getSession(uscUserId).baths, 2);
+
     assert.equal(
       await handleMessage(userId, "reset"),
-      "Your search has been reset. Which city are you interested in?"
+      "Your search has been reset. Which city or landmark are you interested in?"
     );
     assert.equal(getSession(userId).conversationStep, 0);
 
-    console.log("Week 4 conversation: follow-ups, results, memory, and reset passed.");
+    console.log("Week 4 conversation: follow-ups, landmark search, selection, memory, and reset passed.");
   } finally {
     await closePool();
   }

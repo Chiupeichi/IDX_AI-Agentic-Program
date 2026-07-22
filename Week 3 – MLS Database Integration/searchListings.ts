@@ -2,6 +2,7 @@ import { query } from "./mysql";
 
 export type PropertyFilters = {
   city?: string | null;
+  near?: string | null;
   maxPrice?: number | null;
   beds?: number | null;
   baths?: number | null;
@@ -35,6 +36,18 @@ export type ListingRow = {
   LA1_UserFirstName: string;
   LA1_UserLastName: string;
   LO1_OrganizationName: string;
+  distanceMiles: number | null;
+};
+
+const landmarks: Record<
+  string,
+  { latitude: number; longitude: number; defaultRadiusMiles: number }
+> = {
+  USC: {
+    latitude: 34.0224,
+    longitude: -118.2851,
+    defaultRadiusMiles: 5,
+  },
 };
 
 export async function searchActiveListings(
@@ -53,6 +66,20 @@ export async function searchActiveListings(
   if (!Number.isSafeInteger(offset)) {
     throw new RangeError("pagination offset is too large");
   }
+
+  const landmark = filters.near ? landmarks[filters.near.toUpperCase()] : undefined;
+  if (filters.near && !landmark) {
+    throw new Error(`Unsupported landmark: ${filters.near}`);
+  }
+
+  const distanceSelect = landmark
+    ? `,
+      3959 * ACOS(LEAST(1,
+        COS(RADIANS(?)) * COS(RADIANS(LMD_MP_Latitude)) *
+        COS(RADIANS(LMD_MP_Longitude) - RADIANS(?)) +
+        SIN(RADIANS(?)) * SIN(RADIANS(LMD_MP_Latitude))
+      )) AS distanceMiles`
+    : ", NULL AS distanceMiles";
 
   let sql = `
     SELECT
@@ -79,11 +106,18 @@ export async function searchActiveListings(
       LA1_UserFirstName,
       LA1_UserLastName,
       LO1_OrganizationName
+      ${distanceSelect}
     FROM rets_property
     WHERE L_Status = "Active"
   `;
 
-  const params: any[] = [];
+  const params: unknown[] = landmark
+    ? [landmark.latitude, landmark.longitude, landmark.latitude]
+    : [];
+
+  if (filters.type !== "UnimprovedLand") {
+    sql += " AND L_Class = 'Residential'";
+  }
 
   if (filters.city) {
     sql += " AND L_City = ?";
@@ -123,7 +157,18 @@ export async function searchActiveListings(
     sql += " AND ViewYN IN ('1', 'True', 'true', 'Y', 'Yes')";
   }
 
-  sql += " ORDER BY L_SystemPrice ASC LIMIT ? OFFSET ?";
+  if (landmark) {
+    sql += `
+      AND LMD_MP_Latitude IS NOT NULL
+      AND LMD_MP_Longitude IS NOT NULL
+      HAVING distanceMiles <= ?
+    `;
+    params.push(landmark.defaultRadiusMiles);
+  }
+
+  sql += landmark
+    ? " ORDER BY distanceMiles ASC, L_SystemPrice ASC LIMIT ? OFFSET ?"
+    : " ORDER BY L_SystemPrice ASC LIMIT ? OFFSET ?";
   params.push(limit, offset);
 
   return query<ListingRow>(sql, params);
@@ -131,10 +176,14 @@ export async function searchActiveListings(
 
 export function formatListingCard(home: ListingRow, index?: number) {
   const prefix = index === undefined ? "" : `${index + 1}. `;
+  const distance =
+    home.distanceMiles === null || home.distanceMiles === undefined
+      ? ""
+      : `\n📍 ${Number(home.distanceMiles).toFixed(1)} miles from landmark`;
   return `${prefix}🏠 ${home.L_Address}
 📍 ${home.L_City}, ${home.L_Zip}
 💰 $${Number(home.price).toLocaleString()}
 🛏 ${home.beds} beds | 🛁 ${home.baths} baths
-📐 ${home.sqft} sqft
+📐 ${home.sqft} sqft${distance}
 📷 ${home.PhotoCount ?? 0} photos`;
 }

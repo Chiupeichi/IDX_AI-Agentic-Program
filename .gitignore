@@ -235,3 +235,12 @@ Icon?
 /week3/
 /week4/
 /week5/
+
+# OpenClaw local workspace bootstrap and runtime state
+/AGENTS.md
+/HEARTBEAT.md
+/IDENTITY.md
+/SOUL.md
+/TOOLS.md
+/USER.md
+/openclaw-workspace-state.json

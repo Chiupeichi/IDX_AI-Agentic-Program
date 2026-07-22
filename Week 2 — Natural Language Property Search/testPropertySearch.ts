@@ -89,6 +89,14 @@ const cases: Array<{
     query: "Show me homes near Irvine",
     expected: { city: "Irvine" },
   },
+  {
+    query: "Show me 2b2b near USC",
+    expected: { near: "USC", city: null, beds: 2, baths: 2 },
+  },
+  {
+    query: "我想找 USC 附近的 2b2b",
+    expected: { near: "USC", city: null, beds: 2, baths: 2 },
+  },
 ];
 
 for (const { query, expected } of cases) {
