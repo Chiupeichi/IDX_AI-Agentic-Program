@@ -1,63 +1,77 @@
-export async function parsePropertyQuery(query: string) {
-  const cityMatch = query.match(/in\s+([A-Za-z\s]+?)(?:\s+under|\s+with|\s+at|$)/i);
-  const priceMatch = query.match(/under\s+\$?([\d,.]+)(k|m)?/i);
-  const bedsMatch = query.match(/(\d+)[\s-]*(bed|beds|bedroom|bedrooms)/i);
-  const bathsMatch = query.match(/(\d+(?:\.\d+)?)[\s-]*(bath|baths|bathroom|bathrooms)/i);
-  const sqftMatch = query.match(/(\d+)\s*(sqft|sq ft|square feet)/i);
-  const poolMatch = /pool/i.test(query);
-  const viewMatch = /view/i.test(query);
+export type PropertyFilters = {
+  city: string | null;
+  near: string | null;
+  maxPrice: number | null;
+  beds: number | null;
+  baths: number | null;
+  sqft: number | null;
+  type: string | null;
+  pool: boolean | null;
+  hasView: boolean | null;
+};
 
-  const typeMap: Record<string, string> = {
-    condo: "Condominium",
-    townhouse: "Townhouse",
-    "single family": "SingleFamilyResidence",
-    land: "UnimprovedLand",
-  };
+const landmarkPatterns = [
+  {
+    pattern: /\b(?:USC|University of Southern California)\b|南加大/i,
+    value: "USC",
+  },
+] as const;
 
-  const typeKey = Object.keys(typeMap).find((k) =>
-    query.toLowerCase().includes(k)
+const propertyTypes = [
+  { pattern: /\bcondos?\b/i, value: "Condominium" },
+  { pattern: /\b(?:town\s*homes?|townhouses?)\b/i, value: "Townhouse" },
+  {
+    pattern: /\b(?:single[-\s]+family|detached\s+house|house)\b/i,
+    value: "SingleFamilyResidence",
+  },
+  { pattern: /\b(?:land|lots?|parcels?)\b/i, value: "UnimprovedLand" },
+] as const;
+
+function parsePrice(query: string) {
+  const match = query.match(
+    /\b(?:under|below|max(?:imum)?|up\s+to)\s*\$?\s*([\d,.]+)\s*(k|m|million|thousand)?\b/i
   );
-
-  let maxPrice = null;
-  if (priceMatch) {
-    maxPrice = Number(priceMatch[1].replace(/,/g, ""));
-    if (priceMatch[2]?.toLowerCase() === "k") maxPrice *= 1000;
-    if (priceMatch[2]?.toLowerCase() === "m") maxPrice *= 1_000_000;
+  if (!match) {
+    return null;
   }
+
+  let price = Number(match[1].replace(/,/g, ""));
+  const suffix = match[2]?.toLowerCase();
+  if (suffix === "k" || suffix === "thousand") {
+    price *= 1_000;
+  } else if (suffix === "m" || suffix === "million") {
+    price *= 1_000_000;
+  }
+
+  return Number.isFinite(price) ? price : null;
+}
+
+export function parsePropertyQuery(query: string): PropertyFilters {
+  const landmark = landmarkPatterns.find(({ pattern }) => pattern.test(query));
+  const cityMatch = query.match(
+    /\b(?:in|near|around)\s+([A-Za-z][A-Za-z.'-]*(?:\s+[A-Za-z][A-Za-z.'-]*)*?)(?=\s+(?:under|below|with|at|for|and|that|having)\b|[,.!?]|$)/i
+  );
+  const compactBedBathMatch = query.match(/(?:^|\s)(\d+)\s*b\s*(\d+(?:\.\d+)?)\s*b(?:\s|$)/i);
+  const chineseBedBathMatch = query.match(/(\d+)\s*房\s*(\d+(?:\.\d+)?)\s*(?:衛|浴)/);
+  const shorthandMatch = compactBedBathMatch ?? chineseBedBathMatch;
+  const bedsMatch = query.match(/(\d+)\s*[- ]*bed(?:room)?s?\b/i);
+  const bathsMatch = query.match(/(\d+(?:\.\d+)?)\s*[- ]*bath(?:room)?s?\b/i);
+  const sqftMatch = query.match(/([\d,]+)\s*(?:sqft|sq\s*ft|square\s+feet)\b/i);
+  const propertyType = propertyTypes.find(({ pattern }) => pattern.test(query));
 
   return {
-    city: cityMatch?.[1]?.trim() || null,
-    maxPrice,
-    beds: bedsMatch ? Number(bedsMatch[1]) : null,
-    baths: bathsMatch ? Number(bathsMatch[1]) : null,
-    sqft: sqftMatch ? Number(sqftMatch[1]) : null,
-    type: typeKey ? typeMap[typeKey] : null,
-    pool: poolMatch ? true : null,
-    hasView: viewMatch ? true : null,
+    city: landmark ? null : cityMatch?.[1]?.trim() || null,
+    near: landmark?.value || null,
+    maxPrice: parsePrice(query),
+    beds: shorthandMatch ? Number(shorthandMatch[1]) : bedsMatch ? Number(bedsMatch[1]) : null,
+    baths: shorthandMatch
+      ? Number(shorthandMatch[2])
+      : bathsMatch
+        ? Number(bathsMatch[1])
+        : null,
+    sqft: sqftMatch ? Number(sqftMatch[1].replace(/,/g, "")) : null,
+    type: propertyType?.value || null,
+    pool: /\bpool\b/i.test(query) ? true : null,
+    hasView: /\bviews?\b/i.test(query) ? true : null,
   };
 }
-
-// ── Week 2 Validation: 10 test queries ──
-const testQueries = [
-  "Show me 3-bedroom condos in Irvine under $1.5M with a pool.",
-  "Looking for a single family home in Newport Beach under 2m with a view",
-  "2 bed 2.5 bath townhome in Pasadena at least 1800 sqft",
-  "Under $800k in San Diego",
-  "3 bedroom house with a pool and view under 950000",
-  "Condo in Los Angeles",
-  "5 bed 4 bath single family in Beverly Hills under $10,000,000 with pool and view",
-  "2500 square feet land parcel in Riverside",
-  "Townhouse under 1.2m in Irvine with 3 bedrooms and 2 baths",
-  "Show me homes near Irvine",
-];
-
-async function runTests() {
-  for (let i = 0; i < testQueries.length; i++) {
-    const query = testQueries[i];
-    const result = await parsePropertyQuery(query);
-    console.log(`\nTest ${i + 1}: "${query}"`);
-    console.log(JSON.stringify(result, null, 2));
-  }
-}
-
-runTests();

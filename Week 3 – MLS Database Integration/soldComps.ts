@@ -21,6 +21,14 @@ export type SoldRow = {
 };
 
 export async function getSoldComps(city: string, months = 12) {
+  const normalizedCity = city.trim();
+  if (!normalizedCity) {
+    throw new Error("city is required");
+  }
+  if (!Number.isInteger(months) || months < 1 || months > 60) {
+    throw new RangeError("months must be an integer between 1 and 60");
+  }
+
   const sql = `
     SELECT
       ListingKey,
@@ -42,11 +50,12 @@ export async function getSoldComps(city: string, months = 12) {
       BuyerOfficeName
     FROM california_sold
     WHERE City = ?
-      AND CloseDate >= DATE_SUB(CURDATE(), INTERVAL ${months} MONTH)
+      AND CloseDate >= DATE_SUB(CURDATE(), INTERVAL ? MONTH)
+      AND CloseDate <= CURDATE()
       AND PropertyType = "Residential"
     ORDER BY CloseDate DESC
     LIMIT 50
   `;
 
-  return query<SoldRow>(sql, [city]);
+  return query<SoldRow>(sql, [normalizedCity, months]);
 }

@@ -216,3 +216,31 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# IDX AI local runtime and data
+.DS_Store
+.env.*
+!.env.example
+node_modules/
+*.sql
+AI_Agentic_Engineer_Intern_Handbook_2026.pdf
+tmp/
+Icon?
+
+# Local short-name working copies are preserved on this Mac. The repository
+# uses the original weekly deliverable folder names already present on GitHub.
+/week0.ipynb
+/week1/
+/week2/
+/week3/
+/week4/
+/week5/
+
+# OpenClaw local workspace bootstrap and runtime state
+/AGENTS.md
+/HEARTBEAT.md
+/IDENTITY.md
+/SOUL.md
+/TOOLS.md
+/USER.md
+/openclaw-workspace-state.json

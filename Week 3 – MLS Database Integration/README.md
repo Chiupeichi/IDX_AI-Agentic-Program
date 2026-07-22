@@ -64,7 +64,7 @@ Create a reusable MySQL connection module for all database operations.
 ### Files
 
 ```
-week3/mysql.ts
+Week 3 – MLS Database Integration/mysql.ts
 ```
 
 Example:
@@ -185,7 +185,7 @@ LIMIT 50;
 # Files
 
 ```
-week3/
+Week 3 – MLS Database Integration/
 ├── mysql.ts
 ├── searchListings.ts
 ├── soldComps.ts

@@ -1,5 +1,9 @@
-import { parsePropertyQuery } from "../week2/propertySearch";
-import { searchActiveListings } from "../week3/searchListings";
+import { parsePropertyQuery } from "../Week 2 — Natural Language Property Search/propertySearch";
+import {
+  formatListingCard,
+  searchActiveListings,
+  type ListingRow,
+} from "../Week 3 – MLS Database Integration/searchListings";
 import {
   getSession,
   updateSession,
@@ -7,38 +11,30 @@ import {
   type UserSession,
 } from "./session";
 
-function formatListings(results: any[]): string {
+function formatListings(results: ListingRow[]): string {
   if (results.length === 0) {
     return "I couldn't find any matching active listings. Please try changing one of your preferences.";
   }
 
-  const cards = results.slice(0, 5).map((home, index) => {
-    return `
-${index + 1}. 🏠 ${home.L_Address}
-📍 ${home.L_City}, ${home.L_Zip}
-💰 $${Number(home.price).toLocaleString()}
-🛏 ${home.beds} beds | 🛁 ${home.baths} baths
-📐 ${home.sqft} sqft
-📷 ${home.PhotoCount ?? 0} photos
-`.trim();
-  });
+  const cards = results.slice(0, 5).map(formatListingCard);
 
-  return `I found ${results.length} matching listings:\n\n${cards.join(
+  return `I found ${results.length} matching listings. Reply with a number to choose one:\n\n${cards.join(
     "\n\n"
   )}`;
 }
 
+function formatSelection(home: ListingRow, selection: number) {
+  const distance =
+    home.distanceMiles === null || home.distanceMiles === undefined
+      ? ""
+      : `\nDistance: ${Number(home.distanceMiles).toFixed(1)} miles`;
+
+  return `You selected option ${selection}:\n\n🏠 ${home.L_Address}\n📍 ${home.L_City}, ${home.L_Zip}\n💰 $${Number(home.price).toLocaleString()}\n🛏 ${home.beds} beds | 🛁 ${home.baths} baths\n📐 ${home.sqft} sqft${distance}\n🏗 Built: ${home.YearBuilt || "N/A"}\n📅 DOM: ${home.DaysOnMarket ?? "N/A"}\n🏢 ${home.LO1_OrganizationName || "Listing office unavailable"}\n\nReply with new criteria to refine the search, or type reset to start over.`;
+}
+
 function getMissingQuestion(session: UserSession): string | null {
-  if (!session.city) {
-    return "Which city are you interested in?";
-  }
-
-  if (!session.maxPrice) {
-    return "What is your maximum budget?";
-  }
-
-  if (!session.type) {
-    return "What property type do you prefer: condo, townhouse, or single family?";
+  if (!session.city && !session.near) {
+    return "Which city or landmark are you interested in?";
   }
 
   if (!session.beds) {
@@ -53,6 +49,17 @@ export async function handleMessage(
   message: string
 ): Promise<string> {
   const normalizedMessage = message.trim().toLowerCase();
+  const currentSession = getSession(userId);
+
+  const selectionMatch = normalizedMessage.match(/^(?:#|option\s*)?(\d+)$/i);
+  if (selectionMatch && currentSession.lastResults?.length) {
+    const selection = Number(selectionMatch[1]);
+    const selected = currentSession.lastResults[selection - 1];
+    if (!selected) {
+      return `Please choose a number from 1 to ${Math.min(5, currentSession.lastResults.length)}.`;
+    }
+    return formatSelection(selected, selection);
+  }
 
   if (
     normalizedMessage === "reset" ||
@@ -60,17 +67,20 @@ export async function handleMessage(
     normalizedMessage === "start over"
   ) {
     clearSession(userId);
-    return "Your search has been reset. Which city are you interested in?";
+    return "Your search has been reset. Which city or landmark are you interested in?";
   }
 
-  const currentSession = getSession(userId);
-
-  const parsedFilters = await parsePropertyQuery(message);
+  const parsedFilters = parsePropertyQuery(message);
 
   const updates: Partial<UserSession> = {};
 
   if (parsedFilters.city) {
     updates.city = parsedFilters.city;
+  }
+
+  if (parsedFilters.near) {
+    updates.near = parsedFilters.near;
+    updates.city = undefined;
   }
 
   if (parsedFilters.maxPrice) {
@@ -93,11 +103,11 @@ export async function handleMessage(
     updates.type = parsedFilters.type;
   }
 
-  if (parsedFilters.pool) {
+  if (parsedFilters.pool !== null) {
     updates.pool = parsedFilters.pool;
   }
 
-  if (parsedFilters.hasView) {
+  if (parsedFilters.hasView !== null) {
     updates.hasView = parsedFilters.hasView;
   }
 

@@ -1,5 +1,8 @@
+import type { ListingRow } from "../Week 3 – MLS Database Integration/searchListings";
+
 export interface UserSession {
   city?: string;
+  near?: string;
   maxPrice?: number;
   beds?: number;
   baths?: number;
@@ -7,7 +10,7 @@ export interface UserSession {
   type?: string;
   pool?: boolean;
   hasView?: boolean;
-  lastResults?: any[];
+  lastResults?: ListingRow[];
   conversationStep: number;
 }
 

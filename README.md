@@ -1,23 +1,23 @@
 # IDX Multi-Agent Real Estate Assistant
 
-Production-grade, OpenClaw-powered multi-agent AI assistant built for the IDX Exchange AI Agentic Engineer Internship (Summer 2026). The assistant provides real-time MLS property search, market analytics, semantic recommendations, RAG-based knowledge retrieval, and WhatsApp + email communication over two live California MLS datasets.
+OpenClaw-powered real-estate assistant built for the IDX Exchange AI Agentic Engineer Internship (Summer 2026). Weeks 0–5 currently cover environment setup, architecture, natural-language property search, MLS database integration, conversational memory, and market statistics.
 
 ## Overview
 
 | | |
 |---|---|
 | **Runtime** | [OpenClaw](https://github.com/openclaw/openclaw) multi-agent orchestration framework |
-| **Data** | 667K+ MLS records across two MySQL tables |
-| **Channels** | WhatsApp, Email |
-| **Core capabilities** | NL property search, market analytics, embeddings/vector search, RAG, recommendations, multi-agent orchestration |
+| **Data** | 140,279 locally supplied MLS-derived records across two MySQL tables |
+| **Channel target** | WhatsApp through OpenClaw |
+| **Implemented capabilities** | NL city/landmark property search, interactive numbered selection, conversational memory, sold comps, and market analytics |
 
 ## Databases
 
 ### `rets_property` — Active MLS Listings
-~228,410 active California listings, 130+ fields (address, price, beds/baths, sqft, agent info, HOA, photos, full-text remarks with `FULLTEXT` index).
+53,122 supplied California listing records with fields for address, price, beds/baths, living area, agent information, HOA, photos, and remarks.
 
 ### `california_sold` — Sold Transactions & Comps
-~439,167 sold/leased/closed transactions (2021–2025), 46 fields covering close price, days on market, agent/office info, and property attributes. Used for market analytics and comp validation.
+87,157 supplied sold transactions with 46 fields covering close price, days on market, agent/office information, and property attributes. Used for market analytics and comparable sales.
 
 Tables join via `rets_property.L_ListingID` ↔ `california_sold.ListingKey`, or on `city` + `postal code` for market-level analysis.
 
@@ -27,44 +27,37 @@ Tables join via `rets_property.L_ListingID` ↔ `california_sold.ListingKey`, or
 User → WhatsApp / Email → OpenClaw Runtime → Orchestrator → Skill Agents → MySQL (rets_property / california_sold) → Formatted Response → User
 ```
 
-**Agents**
-- `propertySearchAgent` — structured filter search over `rets_property`
-- `marketStatsAgent` — trend/comp aggregations over `california_sold`
-- `recommendationAgent` — hybrid (structured + embedding) similarity scoring, comp-validated
-- `ragAgent` — grounded answers over MLS field definitions & real estate terminology
-- `emailDraftAgent` — draft-then-approve email summaries and reports
+**Implemented agents/skills**
+- Property search — structured filter search over `rets_property`
+- Conversational property search — multi-turn preferences and reset behavior
+- Market statistics — median/average price, price per square foot, DOM, list-to-close ratio, inventory, MoM, and YoY trends
 
 ## Tech Stack
 
 - **Orchestration:** OpenClaw
-- **Backend:** Node.js / TypeScript, Python
+- **Backend:** Node.js / TypeScript
 - **Database:** MySQL (`idx_exchange` schema)
-- **AI:** OpenAI embeddings (`text-embedding-3-small`), GPT-4o-mini for RAG generation
-- **Data tooling:** pandas, scikit-learn, SQLAlchemy
-- **Channels:** WhatsApp (via OpenClaw channel), Nodemailer (email)
+- **Secrets:** macOS Keychain with an optional local `.env` fallback
+- **Channel:** WhatsApp via OpenClaw
 
 ## Getting Started
 
 ### Prerequisites
 - Node.js + npm
-- Python 3.x
 - MySQL
-- OpenAI API key
 - WhatsApp account (for channel linking)
 
 ### Setup
 
 ```bash
-# Clone and install OpenClaw
-git clone https://github.com/openclaw/openclaw.git
-cd openclaw
+# Install project dependencies
 npm install
-openclaw onboard
 
-# Python environment
-python3 -m venv venv
-source venv/bin/activate
-pip install pandas openai mysql-connector-python sqlalchemy scikit-learn numpy
+# Copy the safe configuration template and fill in local non-secret settings
+cp .env.example .env
+
+# Run Weeks 1–5 validation
+npm test
 ```
 
 ### Database Import
@@ -80,13 +73,11 @@ mysql -u root -p idx_exchange < california_sold.sql
 Create a `.env` file (never commit this):
 
 ```
-OPENAI_API_KEY=sk-...
-MYSQL_HOST=localhost
-MYSQL_USER=idx_user
-MYSQL_PASSWORD=your_secure_password
+MYSQL_HOST=127.0.0.1
+MYSQL_PORT=3306
+MYSQL_USER=idx_ai_agent
 MYSQL_DATABASE=idx_exchange
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASSWORD=your_app_password
+MYSQL_PASSWORD_KEYCHAIN_SERVICE=IDX_AI_MYSQL
 ```
 
 ### WhatsApp Channel
@@ -115,7 +106,7 @@ Agent: [returns median price, DOM, list-to-close ratio, 12-month trend from cali
 
 ## Project Status
 
-Built over a 12-week internship program, progressing from environment setup through NL search, database integration, conversational memory, market analytics, embeddings, RAG, multi-agent orchestration, and channel integration (WhatsApp + email), culminating in a capstone demo.
+Weeks 0–5 are implemented in their original weekly deliverable folders. Later internship weeks remain future work and are not represented as completed here.
 
 ## License
 
