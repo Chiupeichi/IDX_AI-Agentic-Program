@@ -1,6 +1,6 @@
 # IDX Multi-Agent Real Estate Assistant
 
-OpenClaw-powered real-estate assistant built for the IDX Exchange AI Agentic Engineer Internship (Summer 2026). Weeks 0–5 currently cover environment setup, architecture, natural-language property search, MLS database integration, conversational memory, and market statistics.
+OpenClaw-powered real-estate assistant built for the IDX Exchange AI Agentic Engineer Internship (Summer 2026). Weeks 0–7 cover environment setup, architecture, natural-language property search, MLS database integration, conversational memory, market statistics, semantic vector search, and comp-validated recommendations.
 
 ## Overview
 
@@ -9,7 +9,7 @@ OpenClaw-powered real-estate assistant built for the IDX Exchange AI Agentic Eng
 | **Runtime** | [OpenClaw](https://github.com/openclaw/openclaw) multi-agent orchestration framework |
 | **Data** | 140,279 locally supplied MLS-derived records across two MySQL tables |
 | **Channel target** | WhatsApp through OpenClaw |
-| **Implemented capabilities** | NL city/landmark property search, interactive numbered selection, conversational memory, sold comps, and market analytics |
+| **Implemented capabilities** | NL city/landmark search, conversational memory, market analytics, embedding cosine search, and hybrid comp-validated recommendations |
 
 ## Databases
 
@@ -31,6 +31,8 @@ User → WhatsApp / Email → OpenClaw Runtime → Orchestrator → Skill Agents
 - Property search — structured filter search over `rets_property`
 - Conversational property search — multi-turn preferences and reset behavior
 - Market statistics — median/average price, price per square foot, DOM, list-to-close ratio, inventory, MoM, and YoY trends
+- Semantic property search — OpenAI listing embeddings with top-five cosine ranking
+- Property recommendation — 60/40 structured-semantic ranking with recent sold-comp validation
 
 ## Tech Stack
 
@@ -56,7 +58,7 @@ npm install
 # Copy the safe configuration template and fill in local non-secret settings
 cp .env.example .env
 
-# Run Weeks 1–5 validation
+# Run Weeks 1–7 validation
 npm test
 ```
 
@@ -78,6 +80,10 @@ MYSQL_PORT=3306
 MYSQL_USER=idx_ai_agent
 MYSQL_DATABASE=idx_exchange
 MYSQL_PASSWORD_KEYCHAIN_SERVICE=IDX_AI_MYSQL
+OPENAI_API_KEY_KEYCHAIN_SERVICE=IDX_AI_OPENAI
+OPENAI_API_KEY_KEYCHAIN_ACCOUNT=embeddings
+OPENAI_EMBEDDING_MODEL=text-embedding-3-small
+OPENAI_EMBEDDING_DIMENSIONS=512
 ```
 
 ### WhatsApp Channel
@@ -95,6 +101,12 @@ Agent: [returns matching active listings from rets_property]
 
 User: "Is now a good time to buy in San Diego?"
 Agent: [returns median price, DOM, list-to-close ratio, 12-month trend from california_sold]
+
+User: "Find a charming craftsman with mountain views and character."
+Agent: [returns the five most semantically similar active listings]
+
+User: "Show me homes similar to this listing."
+Agent: [returns five hybrid-ranked alternatives with sold-comp price validation]
 ```
 
 ## Safety Guardrails
@@ -106,7 +118,7 @@ Agent: [returns median price, DOM, list-to-close ratio, 12-month trend from cali
 
 ## Project Status
 
-Weeks 0–5 are implemented in their original weekly deliverable folders. Later internship weeks remain future work and are not represented as completed here.
+Weeks 0–7 are implemented in their original weekly deliverable folders. Week 6 requires an operator-built local embedding index before live semantic searches; the index and all secrets remain uncommitted.
 
 ## License
 
