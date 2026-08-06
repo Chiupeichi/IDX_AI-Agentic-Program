@@ -222,6 +222,7 @@ __marimo__/
 .env.*
 !.env.example
 node_modules/
+.data/
 *.sql
 AI_Agentic_Engineer_Intern_Handbook_2026.pdf
 tmp/

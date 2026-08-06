@@ -4,14 +4,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "npm run week1 && npm run week2 && npm run week3 && npm run week4 && npm run week5",
+    "test": "npm run week1 && npm run week2 && npm run week3 && npm run week4 && npm run week5 && npm run week6 && npm run week7",
     "week1": "node --import tsx \"Week 1 — OpenClaw Architecture Fundamentals/testArchitecture.ts\"",
     "week2": "node --import tsx \"Week 2 — Natural Language Property Search/testPropertySearch.ts\"",
     "week3": "node --import tsx \"Week 3 – MLS Database Integration/testWeek3.ts\"",
     "week4": "node --import tsx \"Week4 - Conversational Property Search Agent/testSession.ts\" && node --import tsx \"Week4 - Conversational Property Search Agent/testConversation.ts\"",
     "property:search": "node --import tsx \"Week4 - Conversational Property Search Agent/propertySearchCli.ts\"",
     "week5": "node --import tsx \"Week 5 — Market Statistics Agent/testMarketStats.ts\"",
-    "week5:market": "node --import tsx \"Week 5 — Market Statistics Agent/cli.ts\""
+    "week5:market": "node --import tsx \"Week 5 — Market Statistics Agent/cli.ts\"",
+    "week6": "node --import tsx \"Week 6 — Embeddings & Vector Search/testSemanticSearch.ts\" && node --import tsx \"Week 6 — Embeddings & Vector Search/testListingSource.ts\"",
+    "week6:index": "node --import tsx \"Week 6 — Embeddings & Vector Search/buildIndexCli.ts\"",
+    "week6:search": "node --import tsx \"Week 6 — Embeddings & Vector Search/searchCli.ts\"",
+    "week7": "node --import tsx \"Week 7 — Recommendation Engine/testRecommendation.ts\" && node --import tsx \"Week 7 — Recommendation Engine/testCompValidation.ts\"",
+    "week7:recommend": "node --import tsx \"Week 7 — Recommendation Engine/cli.ts\""
   },
   "engines": {
     "node": ">=22.19.0"
@@ -19,6 +24,7 @@
   "dependencies": {
     "dotenv": "17.4.2",
     "mysql2": "3.22.6",
+    "openai": "^7.4.0",
     "tsx": "4.22.3"
   }
 }
