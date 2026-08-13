@@ -63,7 +63,7 @@ const generator: GroundedAnswerGenerator = {
 };
 
 const documents = await loadKnowledgeDocuments();
-assert.equal(documents.length, 3);
+assert.equal(documents.length, 4);
 const schemaDocument = documents.find(
   (document) => document.id === "mls-field-definitions"
 );
@@ -84,7 +84,7 @@ try {
     overlap: 100,
     batchSize: 3,
   });
-  assert.equal(built.index.metadata.documentCount, 3);
+  assert.equal(built.index.metadata.documentCount, 4);
   assert.equal(built.index.metadata.chunkSize, 600);
   assert.equal(built.index.metadata.overlap, 100);
 

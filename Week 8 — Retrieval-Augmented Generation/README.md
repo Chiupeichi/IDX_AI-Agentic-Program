@@ -10,7 +10,7 @@ This deliverable adds a document-aware real-estate assistant. It embeds curated 
 4. Embed the user's question and retrieve the top four chunks by cosine similarity.
 5. Generate a concise answer only from retrieved context, cite source IDs, and say when the context is insufficient.
 
-The included corpus covers the Week 8 acceptance questions with MLS field definitions verified against the local database, real-estate terminology, and Week 5 market-analytics definitions. Add only vetted authoritative material for new topics; the assistant must not invent legal guidance when no legal source has been indexed.
+The included corpus covers the Week 8 acceptance questions with MLS field definitions verified against the local database, a compact complete `california_sold` column reference, real-estate terminology, and Week 5 market-analytics definitions. Add only vetted authoritative material for new topics; the assistant must not invent legal guidance when no legal source has been indexed.
 
 ## Files
 
