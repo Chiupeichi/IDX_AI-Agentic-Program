@@ -19,7 +19,7 @@ function positiveInteger(value: string | undefined, fallback: number) {
   return parsed;
 }
 
-function resolveApiKey() {
+export function resolveOpenAIApiKey() {
   const directKey = process.env.OPENAI_API_KEY?.trim();
   if (directKey) return directKey;
 
@@ -72,7 +72,9 @@ export class OpenAIEmbeddingProvider implements EmbeddingProvider {
         process.env.OPENAI_EMBEDDING_DIMENSIONS,
         DEFAULT_EMBEDDING_DIMENSIONS
       );
-    this.client = new OpenAI({ apiKey: options.apiKey?.trim() || resolveApiKey() });
+    this.client = new OpenAI({
+      apiKey: options.apiKey?.trim() || resolveOpenAIApiKey(),
+    });
   }
 
   async embed(texts: readonly string[]) {
