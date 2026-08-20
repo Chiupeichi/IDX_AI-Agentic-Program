@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "npm run week1 && npm run week2 && npm run week3 && npm run week4 && npm run week5 && npm run week6 && npm run week7",
+    "test": "npm run week1 && npm run week2 && npm run week3 && npm run week4 && npm run week5 && npm run week6 && npm run week7 && npm run week8 && npm run week9",
     "week1": "node --import tsx \"Week 1 — OpenClaw Architecture Fundamentals/testArchitecture.ts\"",
     "week2": "node --import tsx \"Week 2 — Natural Language Property Search/testPropertySearch.ts\"",
     "week3": "node --import tsx \"Week 3 – MLS Database Integration/testWeek3.ts\"",
@@ -16,7 +16,12 @@
     "week6:index": "node --import tsx \"Week 6 — Embeddings & Vector Search/buildIndexCli.ts\"",
     "week6:search": "node --import tsx \"Week 6 — Embeddings & Vector Search/searchCli.ts\"",
     "week7": "node --import tsx \"Week 7 — Recommendation Engine/testRecommendation.ts\" && node --import tsx \"Week 7 — Recommendation Engine/testCompValidation.ts\"",
-    "week7:recommend": "node --import tsx \"Week 7 — Recommendation Engine/cli.ts\""
+    "week7:recommend": "node --import tsx \"Week 7 — Recommendation Engine/cli.ts\"",
+    "week8": "node --import tsx \"Week 8 — Retrieval-Augmented Generation/testRag.ts\"",
+    "week8:index": "node --import tsx \"Week 8 — Retrieval-Augmented Generation/buildIndexCli.ts\"",
+    "week8:ask": "node --import tsx \"Week 8 — Retrieval-Augmented Generation/cli.ts\"",
+    "week9": "node --import tsx \"Week 9 — Multi-Agent Orchestration/testOrchestrator.ts\"",
+    "week9:ask": "node --import tsx \"Week 9 — Multi-Agent Orchestration/cli.ts\""
   },
   "engines": {
     "node": ">=22.19.0"
