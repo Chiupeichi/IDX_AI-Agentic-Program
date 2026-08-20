@@ -1,6 +1,6 @@
 # IDX Multi-Agent Real Estate Assistant
 
-OpenClaw-powered real-estate assistant built for the IDX Exchange AI Agentic Engineer Internship (Summer 2026). Weeks 0–8 cover environment setup, architecture, natural-language property search, MLS database integration, conversational memory, market statistics, semantic vector search, comp-validated recommendations, and retrieval-augmented generation (RAG).
+OpenClaw-powered real-estate assistant built for the IDX Exchange AI Agentic Engineer Internship (Summer 2026). Weeks 0–9 cover environment setup, architecture, natural-language property search, MLS database integration, conversational memory, market statistics, semantic vector search, comp-validated recommendations, retrieval-augmented generation (RAG), and multi-agent orchestration.
 
 ## Overview
 
@@ -9,7 +9,7 @@ OpenClaw-powered real-estate assistant built for the IDX Exchange AI Agentic Eng
 | **Runtime** | [OpenClaw](https://github.com/openclaw/openclaw) multi-agent orchestration framework |
 | **Data** | 140,279 locally supplied MLS-derived records across two MySQL tables |
 | **Channel target** | WhatsApp through OpenClaw |
-| **Implemented capabilities** | NL city/landmark search, conversational memory, market analytics, embedding cosine search, hybrid comp-validated recommendations, and document-grounded RAG answers |
+| **Implemented capabilities** | NL city/landmark search, conversational memory, market analytics, embedding cosine search, hybrid comp-validated recommendations, document-grounded RAG answers, and five-agent intent routing |
 
 ## Databases
 
@@ -34,6 +34,7 @@ User → WhatsApp / Email → OpenClaw Runtime → Orchestrator → Skill Agents
 - Semantic property search — OpenAI listing embeddings with top-five cosine ranking
 - Property recommendation — 60/40 structured-semantic ranking with recent sold-comp validation
 - Real-estate RAG — curated-document retrieval with 600/100 chunks, cosine top-four ranking, grounded answers, and source citations
+- Multi-agent coordinator — routes search, market, recommendation, knowledge, and email-draft requests; runs mixed property-and-market work in parallel
 
 ## Tech Stack
 
@@ -59,7 +60,7 @@ npm install
 # Copy the safe configuration template and fill in local non-secret settings
 cp .env.example .env
 
-# Run Weeks 1–8 validation
+# Run Weeks 1–9 validation
 npm test
 ```
 
@@ -112,6 +113,9 @@ Agent: [returns five hybrid-ranked alternatives with sold-comp price validation]
 
 User: "What does DOM mean?"
 Agent: [retrieves the relevant glossary passage and returns a grounded answer with sources]
+
+User: "Find affordable homes in Pasadena and tell me whether prices are rising."
+Agent: [runs property search and market statistics in parallel, then returns one combined response]
 ```
 
 ## Safety Guardrails
@@ -123,7 +127,7 @@ Agent: [retrieves the relevant glossary passage and returns a grounded answer wi
 
 ## Project Status
 
-Weeks 0–8 are implemented in their original weekly deliverable folders. Weeks 6 and 8 require operator-built local embedding indexes before live use; indexes and all secrets remain uncommitted.
+Weeks 0–9 are implemented in their original weekly deliverable folders. Weeks 6 and 8 require operator-built local embedding indexes before live use; indexes and all secrets remain uncommitted.
 
 ## License
 
