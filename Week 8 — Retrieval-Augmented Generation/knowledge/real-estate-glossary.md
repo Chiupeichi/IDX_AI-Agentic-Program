@@ -1,6 +1,6 @@
 # Real Estate Terminology Glossary
 
-Source authority: IDX Exchange AI Agentic Engineer Intern Handbook, Summer 2026, Weeks 3, 5, 7, and 8. Definitions are scoped to how the project uses these terms.
+Source authority: IDX Exchange `Real Estate Data Analyst Primer`, April 2026. Project-specific calculation notes are cross-checked against the implemented Week 5 and Week 7 rules.
 
 ## Days on market (DOM)
 
@@ -20,7 +20,7 @@ Price per square foot divides a property's price by its living area. Week 5 calc
 
 ## List-to-close ratio
 
-The list-to-close ratio compares the final close price with the last list price:
+The list-to-close ratio, also called the sale-to-list ratio in the Primer, compares the final close price with the last list price:
 
 `list-to-close ratio = ClosePrice / ListPrice * 100`
 

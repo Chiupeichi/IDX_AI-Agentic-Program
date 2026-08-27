@@ -11,6 +11,8 @@ This deliverable combines the specialized Week 2–8 capabilities behind one Ope
 5. Return one unified response while preserving the contributing agent names.
 6. Validate all routes and the Handbook mixed-intent example without requiring MySQL or OpenAI in the test suite.
 
+The default property-search adapter also merges short follow-up filters with the existing user session, supports numbered selection and reset, and lets the recommendation agent use the selected listing. Week 10 persists that in-memory session between separate WhatsApp handler processes.
+
 The email agent creates a preview with `pending approval` status and never sends anything. Sending and its explicit approval gate belong to Week 11.
 
 ## Files

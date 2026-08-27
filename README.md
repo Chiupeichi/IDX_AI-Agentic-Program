@@ -1,6 +1,6 @@
 # IDX Multi-Agent Real Estate Assistant
 
-OpenClaw-powered real-estate assistant built for the IDX Exchange AI Agentic Engineer Internship (Summer 2026). Weeks 0–9 cover environment setup, architecture, natural-language property search, MLS database integration, conversational memory, market statistics, semantic vector search, comp-validated recommendations, retrieval-augmented generation (RAG), and multi-agent orchestration.
+OpenClaw-powered real-estate assistant built for the IDX Exchange AI Agentic Engineer Internship (Summer 2026). Weeks 0–10 cover environment setup, architecture, natural-language property search, MLS database integration, conversational memory, market statistics, semantic vector search, comp-validated recommendations, retrieval-augmented generation (RAG), multi-agent orchestration, and WhatsApp communication.
 
 ## Overview
 
@@ -9,7 +9,7 @@ OpenClaw-powered real-estate assistant built for the IDX Exchange AI Agentic Eng
 | **Runtime** | [OpenClaw](https://github.com/openclaw/openclaw) multi-agent orchestration framework |
 | **Data** | 140,279 locally supplied MLS-derived records across two MySQL tables |
 | **Channel target** | WhatsApp through OpenClaw |
-| **Implemented capabilities** | NL city/landmark search, conversational memory, market analytics, embedding cosine search, hybrid comp-validated recommendations, document-grounded RAG answers, and five-agent intent routing |
+| **Implemented capabilities** | NL city/landmark search, persistent conversational memory, market analytics, embedding cosine search, hybrid comp-validated recommendations, document-grounded RAG answers, five-agent intent routing, and mobile-formatted WhatsApp responses |
 
 ## Databases
 
@@ -24,7 +24,7 @@ Tables join via `rets_property.L_ListingID` ↔ `california_sold.ListingKey`, or
 ## Architecture
 
 ```
-User → WhatsApp / Email → OpenClaw Runtime → Orchestrator → Skill Agents → MySQL (rets_property / california_sold) → Formatted Response → User
+User → WhatsApp → Official OpenClaw Channel → Week 10 Handler → Orchestrator → Skill Agents → MySQL / RAG Index → Mobile Response → User
 ```
 
 **Implemented agents/skills**
@@ -35,6 +35,7 @@ User → WhatsApp / Email → OpenClaw Runtime → Orchestrator → Skill Agents
 - Property recommendation — 60/40 structured-semantic ranking with recent sold-comp validation
 - Real-estate RAG — curated-document retrieval with 600/100 chunks, cosine top-four ranking, grounded answers, and source citations
 - Multi-agent coordinator — routes search, market, recommendation, knowledge, and email-draft requests; runs mixed property-and-market work in parallel
+- WhatsApp communication — official OpenClaw channel, persistent per-sender state, safe error handling, and 4,000-character-aware mobile formatting
 
 ## Tech Stack
 
@@ -60,7 +61,7 @@ npm install
 # Copy the safe configuration template and fill in local non-secret settings
 cp .env.example .env
 
-# Run Weeks 1–9 validation
+# Run Weeks 1–10 validation
 npm test
 ```
 
@@ -116,6 +117,9 @@ Agent: [retrieves the relevant glossary passage and returns a grounded answer wi
 
 User: "Find affordable homes in Pasadena and tell me whether prices are rising."
 Agent: [runs property search and market statistics in parallel, then returns one combined response]
+
+User: "Only show me homes under $430,000."
+Agent: [restores the WhatsApp sender's Pasadena session and returns the refined results]
 ```
 
 ## Safety Guardrails
@@ -127,7 +131,7 @@ Agent: [runs property search and market statistics in parallel, then returns one
 
 ## Project Status
 
-Weeks 0–9 are implemented in their original weekly deliverable folders. Weeks 6 and 8 require operator-built local embedding indexes before live use; indexes and all secrets remain uncommitted.
+Weeks 0–10 are implemented in their original weekly deliverable folders. Weeks 6 and 8 require operator-built local embedding indexes before live use; indexes, WhatsApp session state, authentication data, and all secrets remain uncommitted.
 
 ## License
 

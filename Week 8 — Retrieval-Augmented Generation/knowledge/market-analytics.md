@@ -1,6 +1,6 @@
 # Market Analytics Definitions
 
-Source authority: IDX Exchange AI Agentic Engineer Intern Handbook, Summer 2026, Week 5, plus the project's implemented Week 5 calculation rules.
+Source authority: the project's implemented Week 5 market summaries and calculation rules, derived from the locally supplied `california_sold` and `rets_property` tables.
 
 ## Median and average close price
 

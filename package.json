@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "npm run week1 && npm run week2 && npm run week3 && npm run week4 && npm run week5 && npm run week6 && npm run week7 && npm run week8 && npm run week9",
+    "test": "npm run week1 && npm run week2 && npm run week3 && npm run week4 && npm run week5 && npm run week6 && npm run week7 && npm run week8 && npm run week9 && npm run week10",
     "week1": "node --import tsx \"Week 1 — OpenClaw Architecture Fundamentals/testArchitecture.ts\"",
     "week2": "node --import tsx \"Week 2 — Natural Language Property Search/testPropertySearch.ts\"",
     "week3": "node --import tsx \"Week 3 – MLS Database Integration/testWeek3.ts\"",
@@ -21,7 +21,9 @@
     "week8:index": "node --import tsx \"Week 8 — Retrieval-Augmented Generation/buildIndexCli.ts\"",
     "week8:ask": "node --import tsx \"Week 8 — Retrieval-Augmented Generation/cli.ts\"",
     "week9": "node --import tsx \"Week 9 — Multi-Agent Orchestration/testOrchestrator.ts\"",
-    "week9:ask": "node --import tsx \"Week 9 — Multi-Agent Orchestration/cli.ts\""
+    "week9:ask": "node --import tsx \"Week 9 — Multi-Agent Orchestration/cli.ts\"",
+    "week10": "node --import tsx \"Week 10 — WhatsApp Communication Layer/testWhatsApp.ts\"",
+    "week10:message": "node --import tsx \"Week 10 — WhatsApp Communication Layer/cli.ts\""
   },
   "engines": {
     "node": ">=22.19.0"
