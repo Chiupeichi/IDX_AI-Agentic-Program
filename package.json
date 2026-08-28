@@ -14,6 +14,7 @@
     "week5:market": "node --import tsx \"Week 5 — Market Statistics Agent/cli.ts\"",
     "week6": "node --import tsx \"Week 6 — Embeddings & Vector Search/testSemanticSearch.ts\" && node --import tsx \"Week 6 — Embeddings & Vector Search/testListingSource.ts\"",
     "week6:index": "node --import tsx \"Week 6 — Embeddings & Vector Search/buildIndexCli.ts\"",
+    "week6:merge": "node --import tsx \"Week 6 — Embeddings & Vector Search/mergeIndexesCli.ts\"",
     "week6:search": "node --import tsx \"Week 6 — Embeddings & Vector Search/searchCli.ts\"",
     "week7": "node --import tsx \"Week 7 — Recommendation Engine/testRecommendation.ts\" && node --import tsx \"Week 7 — Recommendation Engine/testCompValidation.ts\"",
     "week7:recommend": "node --import tsx \"Week 7 — Recommendation Engine/cli.ts\"",

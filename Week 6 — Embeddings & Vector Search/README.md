@@ -45,6 +45,26 @@ npm run week6:index
 npm run week6:search -- --query "charming craftsman with mountain views and character"
 ```
 
+For a large production rebuild, create bounded segments so completed work survives
+execution time limits. `--offset` is zero-based and is applied to the stable database
+ordering; each segment must use a different output path.
+
+```bash
+npm run week6:index -- --offset 0 --limit 10000 --batch-size 256 --output .data/week6-segments/segment-00000.jsonl
+npm run week6:index -- --offset 10000 --limit 10000 --batch-size 256 --output .data/week6-segments/segment-10000.jsonl
+```
+
+After all segments finish, merge them in offset order. The merge validates every
+segment's metadata, record count, and vector dimensions before atomically replacing
+the final output.
+
+```bash
+npm run week6:merge -- \
+  .data/week6-segments/segment-00000.jsonl \
+  .data/week6-segments/segment-10000.jsonl \
+  --output .data/listing-embeddings.jsonl
+```
+
 ## Test
 
 ```bash

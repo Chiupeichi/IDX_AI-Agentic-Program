@@ -6,7 +6,11 @@ import {
   cosineSimilarity,
   type EmbeddingProvider,
 } from "./embeddingProvider";
-import { buildEmbeddingIndex, readIndexMetadata } from "./indexStore";
+import {
+  buildEmbeddingIndex,
+  mergeEmbeddingIndexes,
+  readIndexMetadata,
+} from "./indexStore";
 import type { EmbeddingListing } from "./listingText";
 import { semanticPropertySearch } from "./semanticSearch";
 
@@ -51,6 +55,8 @@ const fixtures: EmbeddingListing[] = [
 
 const temporaryDirectory = await mkdtemp(path.join(os.tmpdir(), "idx-week6-"));
 const indexPath = path.join(temporaryDirectory, "index.jsonl");
+const firstSegmentPath = path.join(temporaryDirectory, "segment-1.jsonl");
+const secondSegmentPath = path.join(temporaryDirectory, "segment-2.jsonl");
 
 try {
   assert.equal(cosineSimilarity([1, 0], [1, 0]), 1);
@@ -68,6 +74,25 @@ try {
   const metadata = await readIndexMetadata(indexPath);
   assert.equal(metadata.listingCount, 6);
   assert.equal(metadata.dimensions, 3);
+
+  await buildEmbeddingIndex({
+    embedder,
+    listingCount: 2,
+    outputPath: firstSegmentPath,
+    fetchListings: async (offset, limit) => fixtures.slice(offset, offset + limit),
+  });
+  await buildEmbeddingIndex({
+    embedder,
+    listingCount: 4,
+    outputPath: secondSegmentPath,
+    fetchListings: async (offset, limit) => fixtures.slice(2 + offset, 2 + offset + limit),
+  });
+  const merged = await mergeEmbeddingIndexes(
+    [firstSegmentPath, secondSegmentPath],
+    indexPath
+  );
+  assert.equal(merged.listingCount, fixtures.length);
+  assert.equal((await readIndexMetadata(indexPath)).listingCount, fixtures.length);
 
   const results = await semanticPropertySearch(
     "a character home with mountain scenery",
