@@ -1,6 +1,6 @@
 # california_sold Complete Column Reference
 
-Source authority: the actual read-only `SHOW COLUMNS FROM california_sold` result in the locally supplied `idx_exchange` schema. This compact reference is optimized so a RAG query asking for the table columns retrieves the complete schema rather than an incomplete excerpt.
+Source authority: the actual read-only `SHOW COLUMNS FROM california_sold` result in the locally supplied `idx_exchange` schema, cross-referenced with IDX Exchange `Trestle Property MetaData` for RESO-standard meanings. This compact index aid keeps the complete local schema retrievable rather than introducing a separate external source.
 
 ## Columns 1–16
 

@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { execFileSync } from "node:child_process";
-import mysql from "mysql2/promise";
+import mysql, { type Pool } from "mysql2/promise";
 
 function requireEnv(name: "MYSQL_USER" | "MYSQL_DATABASE") {
   const value = process.env[name]?.trim();
@@ -37,23 +37,29 @@ function resolvePassword(user: string) {
   );
 }
 
-const port = Number(process.env.MYSQL_PORT || "3306");
-if (!Number.isInteger(port) || port < 1 || port > 65535) {
-  throw new Error("MYSQL_PORT must be a valid TCP port number.");
+let pool: Pool | null = null;
+
+function getPool() {
+  if (pool) return pool;
+
+  const port = Number(process.env.MYSQL_PORT || "3306");
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error("MYSQL_PORT must be a valid TCP port number.");
+  }
+
+  const user = requireEnv("MYSQL_USER");
+  pool = mysql.createPool({
+    host: process.env.MYSQL_HOST || "127.0.0.1",
+    port,
+    user,
+    password: resolvePassword(user),
+    database: requireEnv("MYSQL_DATABASE"),
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+  });
+  return pool;
 }
-
-const user = requireEnv("MYSQL_USER");
-
-const pool = mysql.createPool({
-  host: process.env.MYSQL_HOST || "127.0.0.1",
-  port,
-  user,
-  password: resolvePassword(user),
-  database: requireEnv("MYSQL_DATABASE"),
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-});
 
 export async function query<T>(
   sql: string,
@@ -65,10 +71,13 @@ export async function query<T>(
     return p;
   });
 
-  const [rows] = await pool.query(sql, cleanParams);
+  const [rows] = await getPool().query(sql, cleanParams);
   return rows as T[];
 }
 
 export async function closePool() {
-  await pool.end();
+  if (!pool) return;
+  const activePool = pool;
+  pool = null;
+  await activePool.end();
 }

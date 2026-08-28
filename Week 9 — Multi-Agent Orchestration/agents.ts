@@ -28,23 +28,58 @@ export function createDefaultAgentRegistry(): AgentRegistry {
         import("../Week 3 – MLS Database Integration/searchListings"),
         import("../Week4 - Conversational Property Search Agent/session"),
       ]);
+      const normalizedQuery = query.trim().toLowerCase();
+      if (/^(?:reset|restart|start over)$/.test(normalizedQuery)) {
+        sessionModule.clearSession(userId);
+        return "Your search has been reset. Which city or landmark are you interested in?";
+      }
+
+      const currentSession = sessionModule.getSession(userId);
+      const selectionMatch = normalizedQuery.match(/^(?:#|option\s*)?(\d+)$/i);
+      if (selectionMatch && currentSession.lastResults?.length) {
+        const selection = Number(selectionMatch[1]);
+        const selected = currentSession.lastResults[selection - 1];
+        if (!selected) {
+          return `Please choose a number from 1 to ${Math.min(
+            5,
+            currentSession.lastResults.length
+          )}.`;
+        }
+        sessionModule.updateSession(userId, {
+          selectedListingId: selected.L_ListingID,
+          conversationStep: currentSession.conversationStep + 1,
+        });
+        return `You selected option ${selection}:\n\n${searchModule.formatListingCard(
+          selected
+        )}\n\nAsk for similar listings to see comp-validated recommendations.`;
+      }
+
       const filters = parsePropertyQuery(query);
-      if (!filters.city && !filters.near) {
+      const updates = Object.fromEntries(
+        Object.entries(filters).filter(([, value]) => value !== null)
+      );
+      if (filters.city) updates.near = undefined;
+      if (filters.near) updates.city = undefined;
+      const mergedFilters = { ...currentSession, ...updates };
+      if (!mergedFilters.city && !mergedFilters.near) {
         return "Which city or landmark are you interested in?";
       }
-      const listings = await searchModule.searchActiveListings(filters, 1, 5);
+      const listings = await searchModule.searchActiveListings(mergedFilters, 1, 5);
       sessionModule.updateSession(userId, {
-        ...Object.fromEntries(
-          Object.entries(filters).filter(([, value]) => value !== null)
-        ),
+        ...updates,
+        selectedListingId: undefined,
         lastResults: listings,
-        conversationStep: sessionModule.getSession(userId).conversationStep + 1,
+        conversationStep: currentSession.conversationStep + 1,
       });
       return formatSearchResults(listings, searchModule.formatListingCard);
     },
 
-    async marketStatsAgent({ query }) {
-      const city = extractCity(query);
+    async marketStatsAgent({ query, userId }) {
+      const cityFromQuery = extractCity(query);
+      const { getSession } = await import(
+        "../Week4 - Conversational Property Search Agent/session"
+      );
+      const city = cityFromQuery ?? getSession(userId).city ?? null;
       if (!city) return "Which California city should I analyze?";
       const { answerMarketQuestion } = await import(
         "../Week 5 — Market Statistics Agent/marketStats"
@@ -57,12 +92,14 @@ export function createDefaultAgentRegistry(): AgentRegistry {
         import("../Week4 - Conversational Property Search Agent/session"),
         import("../Week 7 — Recommendation Engine/recommendation"),
       ]);
-      const selected = getSession(userId).lastResults?.[0];
-      if (!selected?.L_ListingID) {
+      const session = getSession(userId);
+      const selectedId =
+        session.selectedListingId ?? session.lastResults?.[0]?.L_ListingID;
+      if (!selectedId) {
         return "Search for properties and select a listing before asking for recommendations.";
       }
       const recommendations = await recommendationModule.recommendSimilarListings(
-        selected.L_ListingID,
+        selectedId,
         { topK: 5 }
       );
       return recommendationModule.formatRecommendations(

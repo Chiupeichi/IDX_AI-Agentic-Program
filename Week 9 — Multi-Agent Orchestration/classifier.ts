@@ -15,6 +15,10 @@ const searchPatterns = [
   /\bsearch\b/i,
   /\b(?:homes?|houses?|properties|listings|condos?|townhomes?)\b/i,
   /\b\d+\s*(?:bed(?:room)?s?|b\d+b)\b/i,
+  /\b(?:under|below|max(?:imum)?|up to)\s*\$?\s*[\d,.]+\s*(?:k|m|million|thousand)?\b/i,
+  /\b(?:pool|view|single[-\s]?family|condo|townhome)\b/i,
+  /^(?:#|option\s*)?\d+$/i,
+  /^(?:reset|restart|start over)$/i,
 ];
 
 const searchActionPatterns = [

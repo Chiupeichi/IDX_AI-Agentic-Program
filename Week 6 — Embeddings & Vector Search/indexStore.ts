@@ -170,6 +170,104 @@ export async function readIndexMetadata(indexPath = DEFAULT_INDEX_PATH) {
   throw new Error("Embedding index is empty");
 }
 
+export async function mergeEmbeddingIndexes(
+  inputPaths: readonly string[],
+  outputPath = DEFAULT_INDEX_PATH
+) {
+  if (inputPaths.length < 2) {
+    throw new Error("At least two embedding indexes are required for merging");
+  }
+
+  const resolvedOutputPath = path.resolve(outputPath);
+  const resolvedInputPaths = inputPaths.map((inputPath) => path.resolve(inputPath));
+  if (resolvedInputPaths.includes(resolvedOutputPath)) {
+    throw new Error("Merged output path must be different from every input path");
+  }
+
+  const metadataList = await Promise.all(resolvedInputPaths.map(readIndexMetadata));
+  const [firstMetadata] = metadataList;
+  for (const metadata of metadataList.slice(1)) {
+    if (
+      metadata.model !== firstMetadata.model ||
+      metadata.dimensions !== firstMetadata.dimensions ||
+      metadata.version !== firstMetadata.version
+    ) {
+      throw new Error("Embedding index segments use incompatible metadata");
+    }
+  }
+
+  const listingCount = metadataList.reduce(
+    (total, metadata) => total + metadata.listingCount,
+    0
+  );
+  const metadata: EmbeddingIndexMetadata = {
+    ...firstMetadata,
+    createdAt: new Date().toISOString(),
+    listingCount,
+  };
+
+  await mkdir(path.dirname(resolvedOutputPath), { recursive: true });
+  const temporaryPath = `${resolvedOutputPath}.tmp-${process.pid}`;
+  const output = await open(temporaryPath, "w", 0o600);
+  let written = 0;
+
+  try {
+    try {
+      await output.write(`${JSON.stringify(metadata)}\n`);
+      for (let segmentIndex = 0; segmentIndex < resolvedInputPaths.length; segmentIndex += 1) {
+        const input = createReadStream(resolvedInputPaths[segmentIndex], {
+          encoding: "utf8",
+        });
+        const lines = readline.createInterface({ input, crlfDelay: Infinity });
+        let sawMetadata = false;
+        let segmentCount = 0;
+        try {
+          for await (const line of lines) {
+            if (!line.trim()) continue;
+            if (!sawMetadata) {
+              validateMetadata(JSON.parse(line));
+              sawMetadata = true;
+              continue;
+            }
+            const entry = JSON.parse(line) as EmbeddingIndexEntry;
+            if (
+              entry.kind !== "listing" ||
+              !entry.listing ||
+              typeof entry.embedding !== "string"
+            ) {
+              throw new Error("Embedding index segment contains an invalid listing entry");
+            }
+            decodeEmbedding(entry.embedding, firstMetadata.dimensions);
+            await output.write(`${JSON.stringify(entry)}\n`);
+            segmentCount += 1;
+            written += 1;
+          }
+        } finally {
+          lines.close();
+          input.destroy();
+        }
+
+        if (!sawMetadata || segmentCount !== metadataList[segmentIndex].listingCount) {
+          throw new Error(
+            `Embedding index segment expected ${metadataList[segmentIndex].listingCount} listings but contains ${segmentCount}`
+          );
+        }
+      }
+    } finally {
+      await output.close();
+    }
+
+    if (written !== listingCount) {
+      throw new Error(`Expected ${listingCount} merged listings but wrote ${written}`);
+    }
+    await rename(temporaryPath, resolvedOutputPath);
+    return { outputPath: resolvedOutputPath, listingCount, metadata };
+  } catch (error) {
+    await unlink(temporaryPath).catch(() => undefined);
+    throw error;
+  }
+}
+
 export async function* readIndexEntries(indexPath = DEFAULT_INDEX_PATH) {
   const input = createReadStream(path.resolve(indexPath), { encoding: "utf8" });
   const lines = readline.createInterface({ input, crlfDelay: Infinity });

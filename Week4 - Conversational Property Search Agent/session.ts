@@ -10,6 +10,7 @@ export interface UserSession {
   type?: string;
   pool?: boolean;
   hasView?: boolean;
+  selectedListingId?: string;
   lastResults?: ListingRow[];
   conversationStep: number;
 }

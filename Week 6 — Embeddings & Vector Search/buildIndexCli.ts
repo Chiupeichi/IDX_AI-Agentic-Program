@@ -22,19 +22,34 @@ function optionalPositiveInteger(name: string) {
   return parsed;
 }
 
+function optionalNonNegativeInteger(name: string) {
+  const value = argument(name);
+  if (value === undefined) return undefined;
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < 0) {
+    throw new Error(`--${name} must be a non-negative integer`);
+  }
+  return parsed;
+}
+
 async function main() {
   const city = argument("city")?.trim() || undefined;
+  const startOffset = optionalNonNegativeInteger("offset") ?? 0;
   const requestedLimit = optionalPositiveInteger("limit");
   const batchSize = optionalPositiveInteger("batch-size") ?? 64;
   if (batchSize > 256) throw new Error("--batch-size cannot exceed 256");
 
   const available = await countIndexableListings(city);
   if (available === 0) throw new Error("No active listings with remarks were found");
-  const listingCount = Math.min(available, requestedLimit ?? available);
+  if (startOffset >= available) {
+    throw new Error(`--offset must be less than the ${available} available listings`);
+  }
+  const remaining = available - startOffset;
+  const listingCount = Math.min(remaining, requestedLimit ?? remaining);
   const embedder = new OpenAIEmbeddingProvider();
 
   console.log(
-    `Building ${embedder.model}/${embedder.dimensions} index for ${listingCount} active listings...`
+    `Building ${embedder.model}/${embedder.dimensions} index for ${listingCount} active listings (offset ${startOffset})...`
   );
   const result = await buildEmbeddingIndex({
     embedder,
@@ -42,7 +57,7 @@ async function main() {
     batchSize,
     outputPath: argument("output") || DEFAULT_INDEX_PATH,
     fetchListings: (offset, limit) =>
-      fetchIndexableListings(offset, limit, city),
+      fetchIndexableListings(startOffset + offset, limit, city),
   });
   console.log(`Indexed ${result.listingCount} listings at ${result.outputPath}`);
 }
