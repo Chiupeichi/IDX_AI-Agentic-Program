@@ -56,6 +56,8 @@ const emailPatterns = [
   /\bcompose (?:an? )?email\b/i,
   /\bproperty summary email\b/i,
   /\bmarket summary email\b/i,
+  /\b(?:draft|compose|email) (?:an? )?(?:weekly )?(?:market report|listing alert|property summary|recommendation digest)\b/i,
+  /\b(?:approve|cancel) (?:the )?email\b/i,
 ];
 
 function matchesAny(query: string, patterns: readonly RegExp[]) {

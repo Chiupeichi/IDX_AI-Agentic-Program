@@ -13,8 +13,8 @@ function addWhatsAppEmphasis(value: string) {
   return value
     .replace(/^(🏠 Property matches|📊 Market context)$/gm, "*$1*")
     .replace(/^(\d+\. 🏠 .+)$/gm, "*$1*")
-    .replace(/^(EMAIL DRAFT — NOT SENT)$/gm, "*$1*")
-    .replace(/^(Status: pending approval)$/gm, "_$1_");
+    .replace(/^(EMAIL DRAFT — NOT SENT|EMAIL SENT|EMAIL CANCELLED)$/gm, "*$1*")
+    .replace(/^(Status: pending(?:_| )approval|Status: sent|Status: cancelled)$/gm, "_$1_");
 }
 
 function splitLongBlock(block: string, limit: number) {
