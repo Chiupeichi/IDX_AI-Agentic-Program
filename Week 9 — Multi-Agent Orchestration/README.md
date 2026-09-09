@@ -13,7 +13,7 @@ This deliverable combines the specialized Week 2–8 capabilities behind one Ope
 
 The default property-search adapter also merges short follow-up filters with the existing user session, supports numbered selection and reset, and lets the recommendation agent use the selected listing. Week 10 persists that in-memory session between separate WhatsApp handler processes.
 
-The email agent creates a preview with `pending approval` status and never sends anything. Sending and its explicit approval gate belong to Week 11.
+The email agent now delegates to the Week 11 persistent workflow. Draft requests only create a complete `pending_approval` preview. A separate message containing `Approve email DRAFT_UUID` from the same user is required before the canonical stored draft can be sent.
 
 ## Files
 

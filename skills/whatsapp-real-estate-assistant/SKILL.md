@@ -1,6 +1,6 @@
 ---
 name: whatsapp-real-estate-assistant
-description: Primary adapter for inbound WhatsApp real-estate conversations. Sends every search, market, recommendation, RAG, mixed-intent, selection, refinement, reset, or email-draft message through the Week 10 handler and Week 9 orchestrator while preserving the sender's session.
+description: Primary adapter for inbound WhatsApp real-estate conversations. Sends every search, market, recommendation, RAG, mixed-intent, selection, refinement, reset, email-draft, or explicit email-approval message through the Week 10 handler and Week 9 orchestrator while preserving the sender's session.
 metadata: { "openclaw": { "emoji": "💬", "requires": { "bins": ["node", "npm"] } } }
 ---
 
@@ -27,5 +27,6 @@ Return the command output to the same WhatsApp conversation. OpenClaw owns the l
 - A numbered reply selects that item from the sender's most recent result set.
 - Do not bypass the coordinator by independently combining agent output.
 - Do not invent listings, statistics, comps, definitions, or delivery confirmation.
-- Email output remains a draft and must retain its pending-approval label.
+- Email draft output must retain its pending-approval label and UUID.
+- Forward an exact `Approve email DRAFT_UUID` message through the same handler; never convert a general yes into approval.
 - Never reveal credentials, SQL, stack traces, local file paths, or raw internal session data.

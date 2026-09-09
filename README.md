@@ -1,6 +1,6 @@
 # IDX Multi-Agent Real Estate Assistant
 
-OpenClaw-powered real-estate assistant built for the IDX Exchange AI Agentic Engineer Internship (Summer 2026). Weeks 0–10 cover environment setup, architecture, natural-language property search, MLS database integration, conversational memory, market statistics, semantic vector search, comp-validated recommendations, retrieval-augmented generation (RAG), multi-agent orchestration, and WhatsApp communication.
+OpenClaw-powered real-estate assistant built for the IDX Exchange AI Agentic Engineer Internship (Summer 2026). Weeks 0–11 cover environment setup, architecture, natural-language property search, MLS database integration, conversational memory, market statistics, semantic vector search, comp-validated recommendations, retrieval-augmented generation (RAG), multi-agent orchestration, WhatsApp communication, and human-approved email delivery.
 
 ## Overview
 
@@ -9,7 +9,7 @@ OpenClaw-powered real-estate assistant built for the IDX Exchange AI Agentic Eng
 | **Runtime** | [OpenClaw](https://github.com/openclaw/openclaw) multi-agent orchestration framework |
 | **Data** | 140,279 locally supplied MLS-derived records across two MySQL tables |
 | **Channel target** | WhatsApp through OpenClaw |
-| **Implemented capabilities** | NL city/landmark search, persistent conversational memory, market analytics, embedding cosine search, hybrid comp-validated recommendations, document-grounded RAG answers, five-agent intent routing, and mobile-formatted WhatsApp responses |
+| **Implemented capabilities** | NL city/landmark search, persistent conversational memory, market analytics, embedding cosine search, hybrid comp-validated recommendations, document-grounded RAG answers, five-agent intent routing, mobile-formatted WhatsApp responses, and persistent draft-approve-send email workflows |
 
 ## Databases
 
@@ -25,6 +25,7 @@ Tables join via `rets_property.L_ListingID` ↔ `california_sold.ListingKey`, or
 
 ```
 User → WhatsApp → Official OpenClaw Channel → Week 10 Handler → Orchestrator → Skill Agents → MySQL / RAG Index → Mobile Response → User
+                                                                           └→ Week 11 Draft Store → Human Approval → Nodemailer SMTP → Email
 ```
 
 **Implemented agents/skills**
@@ -34,8 +35,9 @@ User → WhatsApp → Official OpenClaw Channel → Week 10 Handler → Orchestr
 - Semantic property search — OpenAI listing embeddings with top-five cosine ranking
 - Property recommendation — 60/40 structured-semantic ranking with recent sold-comp validation
 - Real-estate RAG — curated-document retrieval with 600/100 chunks, cosine top-four ranking, grounded answers, and source citations
-- Multi-agent coordinator — routes search, market, recommendation, knowledge, and email-draft requests; runs mixed property-and-market work in parallel
+- Multi-agent coordinator — routes search, market, recommendation, knowledge, and email workflow requests; runs mixed property-and-market work in parallel
 - WhatsApp communication — official OpenClaw channel, persistent per-sender state, safe error handling, and 4,000-character-aware mobile formatting
+- Email safety — persistent per-user drafts, complete previews, explicit UUID approval, duplicate-send locking, and Nodemailer delivery only after approval
 
 ## Tech Stack
 
@@ -51,6 +53,7 @@ User → WhatsApp → Official OpenClaw Channel → Week 10 Handler → Orchestr
 - Node.js + npm
 - MySQL
 - WhatsApp account (for channel linking)
+- Email provider account/app password (only for live approved delivery)
 
 ### Setup
 
@@ -61,7 +64,7 @@ npm install
 # Copy the safe configuration template and fill in local non-secret settings
 cp .env.example .env
 
-# Run Weeks 1–10 validation
+# Run Weeks 1–11 validation
 npm test
 ```
 
@@ -88,6 +91,10 @@ OPENAI_API_KEY_KEYCHAIN_ACCOUNT=embeddings
 OPENAI_EMBEDDING_MODEL=text-embedding-3-small
 OPENAI_EMBEDDING_DIMENSIONS=512
 OPENAI_RAG_MODEL=gpt-5.6-terra
+EMAIL_USER=you@example.com
+EMAIL_PASSWORD_KEYCHAIN_SERVICE=IDX_AI_EMAIL
+EMAIL_SERVICE=gmail
+EMAIL_FROM_NAME=IDX Real Estate Assistant
 ```
 
 ### WhatsApp Channel
@@ -120,18 +127,25 @@ Agent: [runs property search and market statistics in parallel, then returns one
 
 User: "Only show me homes under $430,000."
 Agent: [restores the WhatsApp sender's Pasadena session and returns the refined results]
+
+User: "Draft a weekly market report for Pasadena to manager@example.com."
+Agent: [returns the complete draft with pending_approval status and a UUID; nothing is sent]
+
+User: "Approve email 00000000-0000-4000-8000-000000000000"
+Agent: [sends only that previously previewed draft, then confirms stored sent status]
 ```
 
 ## Safety Guardrails
 
 - Every outbound/destructive action (e.g., sending email) requires explicit human approval — emails are drafted, previewed, and only sent after confirmation.
 - Query results are capped at ≤50 rows; full dataset export/bulk-download is not permitted.
-- Secrets are stored only in `.env` and are never logged.
+- Secrets are kept in macOS Keychain or an uncommitted local `.env` fallback and are never logged.
+- Email drafts are bound to a hashed sender identity; another user cannot approve them, and sent/cancelled drafts cannot be sent again.
 - No agent operates autonomously without human oversight on outbound actions.
 
 ## Project Status
 
-Weeks 0–10 are implemented in their original weekly deliverable folders. Weeks 6 and 8 require operator-built local embedding indexes before live use; indexes, WhatsApp session state, authentication data, and all secrets remain uncommitted.
+Weeks 0–11 are implemented in their original weekly deliverable folders. Weeks 6 and 8 require operator-built local embedding indexes before live use. Live email delivery additionally requires a locally configured provider account and a fresh explicit approval for each immutable draft. Indexes, WhatsApp sessions, email drafts, authentication data, and all secrets remain uncommitted.
 
 ## License
 

@@ -1,6 +1,6 @@
 # Week 10 — WhatsApp Communication Layer
 
-This deliverable connects the official OpenClaw WhatsApp channel to the Week 9 single orchestrator. Every accepted direct message enters through the same coordinator, which can route property search, market questions, recommendations, RAG questions, email drafts, and mixed intent.
+This deliverable connects the official OpenClaw WhatsApp channel to the Week 9 single orchestrator. Every accepted direct message enters through the same coordinator, which can route property search, market questions, recommendations, RAG questions, Week 11 email drafts/explicit approvals, and mixed intent.
 
 ## Architecture
 

@@ -1,6 +1,6 @@
 ---
 name: multi-agent-orchestrator
-description: Route real-estate requests through the IDX coordinator across property search, market statistics, recommendations, document-grounded RAG, and safe email drafting, including parallel mixed-intent handling.
+description: Route real-estate requests through the IDX coordinator across property search, market statistics, recommendations, document-grounded RAG, and the human-approved email workflow, including parallel mixed-intent handling.
 metadata: { "openclaw": { "emoji": "🧭", "requires": { "bins": ["node", "npm"] } } }
 ---
 
@@ -32,5 +32,7 @@ Preserve quoting and use a stable channel user ID so listing selections and reco
 - Return the coordinator output without inventing listings, statistics, comps, or definitions.
 - Ask for a city when a search or market question has no location.
 - A recommendation requires a prior listing search in the same user session.
-- Email output is a draft only. Never send it; keep the `pending approval` label visible.
+- Email drafting must return the complete `pending_approval` preview and UUID without sending.
+- Only an exact `Approve email DRAFT_UUID` message from the same user may enter the Week 11 approved-send path.
+- Never approve on the user's behalf or claim delivery without a stored `sent` status.
 - Never expose credentials, SQL, stack traces, local index paths, or Keychain details.

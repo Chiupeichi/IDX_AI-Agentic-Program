@@ -26,6 +26,15 @@ assert.match(formatted[0], /\*🏠 Property matches\*/);
 assert.match(formatted[0], /\*1\. 🏠 100 Main Street\*/);
 assert.match(formatted[0], /\*📊 Market context\*/);
 
+const formattedDraft = formatForWhatsApp({
+  ...baseResult,
+  intent: "email",
+  agents: ["emailDraftAgent"],
+  response: "EMAIL DRAFT — NOT SENT\nStatus: pending_approval",
+});
+assert.match(formattedDraft[0], /\*EMAIL DRAFT — NOT SENT\*/);
+assert.match(formattedDraft[0], /_Status: pending_approval_/);
+
 const chunked = chunkWhatsAppText("A".repeat(450) + "\n\n" + "B".repeat(450), 500);
 assert.equal(chunked.length, 2);
 assert.ok(chunked.every((message) => message.length <= 500));

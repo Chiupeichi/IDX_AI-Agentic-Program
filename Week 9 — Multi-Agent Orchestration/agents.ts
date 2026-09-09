@@ -116,31 +116,15 @@ export function createDefaultAgentRegistry(): AgentRegistry {
     },
 
     async emailDraftAgent({ query, userId }) {
-      const { getSession } = await import(
-        "../Week4 - Conversational Property Search Agent/session"
-      );
-      const listings = getSession(userId).lastResults?.slice(0, 5) ?? [];
-      const listingLines = listings.map(
-        (listing, index) =>
-          `${index + 1}. ${listing.L_Address}, ${listing.L_City} — $${Number(
-            listing.price
-          ).toLocaleString()} (${listing.beds} bd/${listing.baths} ba)`
-      );
-      let body: string;
-      if (listingLines.length) {
-        body = `Here are the properties we discussed:\n\n${listingLines.join("\n")}`;
-      } else {
-        const city = extractCity(query);
-        if (city && /\b(?:market|price|trend|inventory)\b/i.test(query)) {
-          const { answerMarketQuestion } = await import(
-            "../Week 5 — Market Statistics Agent/marketStats"
-          );
-          body = await answerMarketQuestion(city, 12);
-        } else {
-          body = `Requested summary: ${query}`;
-        }
-      }
-      return `EMAIL DRAFT — NOT SENT\nStatus: pending approval\nSubject: Property search summary\n\n${body}`;
+      const [{ getSession }, { handleEmailWorkflowMessage }] = await Promise.all([
+        import("../Week4 - Conversational Property Search Agent/session"),
+        import("../Week 11 — Email Agents & Safety Guardrails/workflow"),
+      ]);
+      const session = getSession(userId);
+      return handleEmailWorkflowMessage(query, userId, {
+        city: extractCity(query) ?? session.city,
+        listings: session.lastResults?.slice(0, 5) ?? [],
+      });
     },
   };
 }
