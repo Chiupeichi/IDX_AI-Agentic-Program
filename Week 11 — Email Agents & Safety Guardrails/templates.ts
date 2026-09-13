@@ -1,5 +1,5 @@
-import type { ListingRow } from "../Week 3 – MLS Database Integration/searchListings";
-import type { MarketStats } from "../Week 5 — Market Statistics Agent/marketStats";
+import type { ListingRow } from "../Week 03 — MLS Database Integration/searchListings";
+import type { MarketStats } from "../Week 05 — Market Statistics Agent/marketStats";
 import type { EmailDraftContent, EmailUseCase } from "./types";
 
 function escapeHtml(value: string) {

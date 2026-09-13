@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { closePool } from "../Week 3 – MLS Database Integration/mysql";
+import { closePool } from "../Week 03 — MLS Database Integration/mysql";
 import { onWhatsAppMessage } from "./handler";
 
 function argument(name: string) {

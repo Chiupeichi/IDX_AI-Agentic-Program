@@ -1,5 +1,5 @@
-import type { ListingRow } from "../Week 3 – MLS Database Integration/searchListings";
-import type { MarketStats } from "../Week 5 — Market Statistics Agent/marketStats";
+import type { ListingRow } from "../Week 03 — MLS Database Integration/searchListings";
+import type { MarketStats } from "../Week 05 — Market Statistics Agent/marketStats";
 import { FileEmailDraftStore } from "./draftStore";
 import {
   approveAndSendEmail,
@@ -78,7 +78,7 @@ export async function handleEmailWorkflowMessage(
       options.loadMarketStats ??
       (async (marketCity: string, months: number) => {
         const { getMarketStats } = await import(
-          "../Week 5 — Market Statistics Agent/marketStats"
+          "../Week 05 — Market Statistics Agent/marketStats"
         );
         return getMarketStats(marketCity, months);
       });

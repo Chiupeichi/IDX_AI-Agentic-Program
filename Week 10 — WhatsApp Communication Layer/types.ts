@@ -1,4 +1,4 @@
-import type { OrchestrationResult } from "../Week 9 — Multi-Agent Orchestration/types";
+import type { OrchestrationResult } from "../Week 09 — Multi-Agent Orchestration/types";
 
 export type WhatsAppReply = {
   ok: boolean;

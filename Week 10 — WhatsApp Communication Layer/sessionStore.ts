@@ -6,7 +6,7 @@ import {
   getSession,
   updateSession,
   type UserSession,
-} from "../Week4 - Conversational Property Search Agent/session";
+} from "../Week 04 — Conversational Property Search Agent/session";
 import type { WhatsAppSessionStore } from "./types";
 
 export const DEFAULT_WHATSAPP_SESSION_DIRECTORY = path.resolve(

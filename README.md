@@ -113,7 +113,7 @@ The two main datasets contain 140,279 records in total. They can be associated b
 
 ## Weekly Implementation
 
-### Week 0 — Environment Setup
+### Week 00 — Environment Setup
 
 **Goal:** Prepare a working local development environment before building agents.
 
@@ -126,13 +126,13 @@ The two main datasets contain 140,279 records in total. They can be associated b
 
 **Main artifacts:**
 
-- `Week 0 — Environment Setup/deliverable.md`
-- `Week 0 — Environment Setup/week0.ipynb`
-- `Week 0 — Environment Setup/whatsapp.jpg`
+- `Week 00 — Environment Setup/deliverable.md`
+- `Week 00 — Environment Setup/week0.ipynb`
+- `Week 00 — Environment Setup/whatsapp.jpg`
 
 **Result:** The machine, database, model provider, and communication channel were ready for subsequent weekly development.
 
-### Week 1 — OpenClaw Architecture Fundamentals
+### Week 01 — OpenClaw Architecture Fundamentals
 
 **Goal:** Understand the complete message path and define clear component boundaries.
 
@@ -155,7 +155,7 @@ The two main datasets contain 140,279 records in total. They can be associated b
 npm run week1
 ```
 
-### Week 2 — Natural Language Property Search
+### Week 02 — Natural Language Property Search
 
 **Goal:** Convert free-text property requests into a safe structured filter object.
 
@@ -256,7 +256,7 @@ npm run week4
 npm run property:search -- --query "2b2b near USC"
 ```
 
-### Week 5 — Market Statistics Agent
+### Week 05 — Market Statistics Agent
 
 **Goal:** Answer market questions from `california_sold` and compare sold activity with active inventory.
 
@@ -280,7 +280,7 @@ npm run week5
 npm run week5:market -- --city "Irvine" --months 12
 ```
 
-### Week 6 — Embeddings and Vector Search
+### Week 06 — Embeddings and Vector Search
 
 **Goal:** Find listings by meaning even when the user's wording does not exactly match MLS keywords.
 
@@ -318,7 +318,7 @@ npm run week6:index -- --offset 10000 --limit 10000 --batch-size 256 --output .d
 npm run week6:merge -- .data/week6-segments/segment-00000.jsonl .data/week6-segments/segment-10000.jsonl --output .data/listing-embeddings.jsonl
 ```
 
-### Week 7 — Recommendation Engine
+### Week 07 — Recommendation Engine
 
 **Goal:** Recommend similar active homes and validate their prices against recent sold comps.
 
@@ -340,7 +340,7 @@ npm run week7
 npm run week7:recommend -- --listing-id "LISTING_ID"
 ```
 
-### Week 8 — Retrieval-Augmented Generation (RAG)
+### Week 08 — Retrieval-Augmented Generation (RAG)
 
 **Goal:** Answer real-estate terminology and MLS-field questions from trusted documents instead of relying on unsupported model memory.
 
@@ -375,7 +375,7 @@ npm run week8:ask -- --question "What columns are in california_sold?"
 npm run week8:ask -- --question "What is a list-to-close ratio?"
 ```
 
-### Week 9 — Multi-Agent Orchestration
+### Week 09 — Multi-Agent Orchestration
 
 **Goal:** Expose the specialized Week 2–8 capabilities through one coordinator instead of separate scripts.
 

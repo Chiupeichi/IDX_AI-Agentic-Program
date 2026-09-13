@@ -1,6 +1,6 @@
 import "dotenv/config";
-import { closePool } from "../Week 3 – MLS Database Integration/mysql";
-import { orchestrate } from "../Week 9 — Multi-Agent Orchestration/entrypoint";
+import { closePool } from "../Week 03 — MLS Database Integration/mysql";
+import { orchestrate } from "../Week 09 — Multi-Agent Orchestration/entrypoint";
 
 function argument(name: string) {
   const index = process.argv.indexOf(`--${name}`);

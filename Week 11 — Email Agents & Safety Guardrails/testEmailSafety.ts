@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import type { ListingRow } from "../Week 3 – MLS Database Integration/searchListings";
-import type { MarketStats } from "../Week 5 — Market Statistics Agent/marketStats";
-import { classifyIntent } from "../Week 9 — Multi-Agent Orchestration/classifier";
+import type { ListingRow } from "../Week 03 — MLS Database Integration/searchListings";
+import type { MarketStats } from "../Week 05 — Market Statistics Agent/marketStats";
+import { classifyIntent } from "../Week 09 — Multi-Agent Orchestration/classifier";
 import { FileEmailDraftStore } from "./draftStore";
 import {
   approveEmail,

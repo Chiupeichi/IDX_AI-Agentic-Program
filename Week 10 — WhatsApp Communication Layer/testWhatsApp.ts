@@ -6,8 +6,8 @@ import {
   clearSession,
   getSession,
   updateSession,
-} from "../Week4 - Conversational Property Search Agent/session";
-import type { OrchestrationResult } from "../Week 9 — Multi-Agent Orchestration/types";
+} from "../Week 04 — Conversational Property Search Agent/session";
+import type { OrchestrationResult } from "../Week 09 — Multi-Agent Orchestration/types";
 import { chunkWhatsAppText, formatForWhatsApp } from "./formatter";
 import { onWhatsAppMessage } from "./handler";
 import { FileWhatsAppSessionStore } from "./sessionStore";
