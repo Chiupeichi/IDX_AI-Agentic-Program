@@ -45,6 +45,10 @@ function getMissingQuestion(session: UserSession): string | null {
     return "How many bedrooms do you need?";
   }
 
+  if (session.baths === undefined) {
+    return "How many bathrooms do you need?";
+  }
+
   return null;
 }
 
@@ -77,7 +81,6 @@ export async function handleMessage(
   const parsedFilters = parsePropertyQuery(message);
   const startsNewLocationSearch = Boolean(
     (parsedFilters.city || parsedFilters.near) &&
-      parsedFilters.maxPrice === null &&
       /\b(?:find|search|show me|look(?:ing)? for)\b/i.test(message)
   );
 
@@ -97,7 +100,13 @@ export async function handleMessage(
   }
 
   if (startsNewLocationSearch) {
-    updates.maxPrice = undefined;
+    if (parsedFilters.maxPrice === null) updates.maxPrice = undefined;
+    if (parsedFilters.beds === null) updates.beds = undefined;
+    if (parsedFilters.baths === null) updates.baths = undefined;
+    if (parsedFilters.sqft === null) updates.sqft = undefined;
+    if (parsedFilters.type === null) updates.type = undefined;
+    if (parsedFilters.pool === null) updates.pool = undefined;
+    if (parsedFilters.hasView === null) updates.hasView = undefined;
     updates.selectedListingId = undefined;
     updates.lastResults = undefined;
   }

@@ -57,7 +57,6 @@ export function createDefaultAgentRegistry(): AgentRegistry {
       const filters = parsePropertyQuery(query);
       const startsNewLocationSearch = Boolean(
         (filters.city || filters.near) &&
-          filters.maxPrice === null &&
           /\b(?:find|search|show me|look(?:ing)? for)\b/i.test(query)
       );
       const updates = Object.fromEntries(
@@ -66,7 +65,13 @@ export function createDefaultAgentRegistry(): AgentRegistry {
       if (filters.city) updates.near = undefined;
       if (filters.near) updates.city = undefined;
       if (startsNewLocationSearch) {
-        updates.maxPrice = undefined;
+        if (filters.maxPrice === null) updates.maxPrice = undefined;
+        if (filters.beds === null) updates.beds = undefined;
+        if (filters.baths === null) updates.baths = undefined;
+        if (filters.sqft === null) updates.sqft = undefined;
+        if (filters.type === null) updates.type = undefined;
+        if (filters.pool === null) updates.pool = undefined;
+        if (filters.hasView === null) updates.hasView = undefined;
         updates.selectedListingId = undefined;
         updates.lastResults = undefined;
       }
@@ -84,6 +89,14 @@ export function createDefaultAgentRegistry(): AgentRegistry {
       if (mergedFilters.maxPrice === undefined) {
         persistPendingFilters();
         return "What is your budget?";
+      }
+      if (mergedFilters.beds === undefined) {
+        persistPendingFilters();
+        return "How many bedrooms do you need?";
+      }
+      if (mergedFilters.baths === undefined) {
+        persistPendingFilters();
+        return "How many bathrooms do you need?";
       }
       const listings = await searchModule.searchActiveListings(mergedFilters, 1, 5);
       sessionModule.updateSession(userId, {

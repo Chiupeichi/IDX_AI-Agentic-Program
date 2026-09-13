@@ -19,7 +19,12 @@ async function run() {
       "How many bedrooms do you need?"
     );
 
-    const response = await handleMessage(userId, "At least 3 beds");
+    assert.equal(
+      await handleMessage(userId, "At least 3 beds"),
+      "How many bathrooms do you need?"
+    );
+
+    const response = await handleMessage(userId, "At least 2 bathrooms");
     assert.match(response, /I found \d+ matching listings/);
     assert.match(response, /Reply with a number/);
     assert.match(response, /Irvine/);
@@ -29,6 +34,7 @@ async function run() {
     assert.equal(session.city, "Irvine");
     assert.equal(session.maxPrice, 1_500_000);
     assert.equal(session.beds, 3);
+    assert.equal(session.baths, 2);
     assert.ok(session.lastResults && session.lastResults.length > 0);
 
     const selection = await handleMessage(userId, "1");
@@ -55,6 +61,8 @@ async function run() {
       city: "San Jose",
       maxPrice: 1_000_000,
       beds: 3,
+      baths: 2,
+      pool: true,
       conversationStep: 5,
     });
     assert.equal(
@@ -63,6 +71,9 @@ async function run() {
     );
     assert.equal(getSession(existingBudgetUser).city, "San Jose");
     assert.equal(getSession(existingBudgetUser).maxPrice, undefined);
+    assert.equal(getSession(existingBudgetUser).beds, undefined);
+    assert.equal(getSession(existingBudgetUser).baths, undefined);
+    assert.equal(getSession(existingBudgetUser).pool, undefined);
     assert.equal(getSession(existingBudgetUser).lastResults, undefined);
     clearSession(existingBudgetUser);
 

@@ -121,9 +121,30 @@ assert.equal(
 assert.equal(getSession(budgetUser).city, "Concord");
 assert.equal(getSession(budgetUser).maxPrice, undefined);
 
+assert.equal(
+  await defaultAgents.propertySearchAgent({
+    query: "Under $1 million",
+    userId: budgetUser,
+  }),
+  "How many bedrooms do you need?"
+);
+assert.equal(getSession(budgetUser).maxPrice, 1_000_000);
+
+assert.equal(
+  await defaultAgents.propertySearchAgent({
+    query: "3 bedrooms",
+    userId: budgetUser,
+  }),
+  "How many bathrooms do you need?"
+);
+assert.equal(getSession(budgetUser).beds, 3);
+
 updateSession(budgetUser, {
   city: "San Jose",
   maxPrice: 1_000_000,
+  beds: 3,
+  baths: 2,
+  pool: true,
   conversationStep: 27,
 });
 assert.equal(
@@ -135,6 +156,9 @@ assert.equal(
 );
 assert.equal(getSession(budgetUser).city, "San Jose");
 assert.equal(getSession(budgetUser).maxPrice, undefined);
+assert.equal(getSession(budgetUser).beds, undefined);
+assert.equal(getSession(budgetUser).baths, undefined);
+assert.equal(getSession(budgetUser).pool, undefined);
 clearSession(budgetUser);
 
 console.log(

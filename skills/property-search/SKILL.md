@@ -11,7 +11,7 @@ Use this skill when a user asks to find, browse, choose, or refine active homes 
 ## Search flow
 
 1. Infer the current complete search request from the WhatsApp conversation. Supported examples include `2b2b near USC` and `我想找 USC 附近的 2b2b`.
-2. If both city/landmark and bedroom count are missing, ask one short clarifying question. Budget and property type are optional.
+2. Collect the required search criteria in order: city/landmark, maximum budget, bedrooms, then bathrooms. Ask one short question at a time and do not query listings until all four are known.
 3. From the workspace root, run the complete request with safe quoting:
 
 ```bash
@@ -27,6 +27,7 @@ npm run property:search -- --query "2b2b near USC"
 - Treat USC, University of Southern California, and 南加大 as the USC landmark. The query searches active residential listings within five miles using coordinates, not a fake city named USC.
 - The USC radius is currently fixed at five miles. Do not suggest that the user can change the radius; use price, property type, bed/bath, pool, or view refinements instead.
 - `2b2b` means at least two bedrooms and two bathrooms.
+- An explicit new location search clears old criteria that the user did not repeat. Never silently reuse a previous search's budget, bedroom count, or bathroom count.
 - Never invent listings or distances. Return only command output backed by the local read-only database.
 - Do not expose SQL, credentials, stack traces, internal paths, or Keychain details to the WhatsApp user.
 - If there are no results, suggest widening the radius indirectly by choosing a nearby city or relaxing price/type filters; do not claim a listing exists.
