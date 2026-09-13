@@ -97,6 +97,18 @@ const cases: Array<{
     query: "我想找 USC 附近的 2b2b",
     expected: { near: "USC", city: null, beds: 2, baths: 2 },
   },
+  {
+    query: "600k",
+    expected: { maxPrice: 600_000 },
+  },
+  {
+    query: "$750,000",
+    expected: { maxPrice: 750_000 },
+  },
+  {
+    query: "My budget is 1.2m",
+    expected: { maxPrice: 1_200_000 },
+  },
 ];
 
 for (const { query, expected } of cases) {

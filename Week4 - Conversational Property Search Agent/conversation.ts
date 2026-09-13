@@ -37,6 +37,10 @@ function getMissingQuestion(session: UserSession): string | null {
     return "Which city or landmark are you interested in?";
   }
 
+  if (session.maxPrice === undefined) {
+    return "What is your budget?";
+  }
+
   if (!session.beds) {
     return "How many bedrooms do you need?";
   }

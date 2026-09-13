@@ -28,9 +28,16 @@ const propertyTypes = [
 ] as const;
 
 function parsePrice(query: string) {
-  const match = query.match(
-    /\b(?:under|below|max(?:imum)?|up\s+to)\s*\$?\s*([\d,.]+)\s*(k|m|million|thousand)?\b/i
-  );
+  const match =
+    query.match(
+      /\b(?:under|below|max(?:imum)?|up\s+to)\s*\$?\s*([\d,.]+)\s*(k|m|million|thousand)?\b/i
+    ) ??
+    query.match(
+      /\b(?:my\s+)?budget(?:\s+is|\s*[:=])?\s*\$?\s*([\d,.]+)\s*(k|m|million|thousand)?\b/i
+    ) ??
+    query.match(
+      /^\s*\$?\s*([\d,.]+)\s*(k|m|million|thousand)?\s*$/i
+    );
   if (!match) {
     return null;
   }

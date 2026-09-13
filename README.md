@@ -34,7 +34,7 @@ The assistant accepts natural-language requests through WhatsApp, remembers foll
 
 - Natural-language property search by city, landmark, price, bedrooms, bathrooms, square footage, property type, pool, and view.
 - Hybrid parsing: deterministic rules for clear requests and structured AI extraction for unclear grammar.
-- Multi-turn conversational memory, follow-up filtering, numbered selection, and reset.
+- Multi-turn conversational memory, required budget clarification, follow-up filtering, numbered selection, and reset.
 - Parameterized, read-only MySQL queries over active and sold MLS-derived data.
 - Market analytics including median price, average price, price per square foot, DOM, list-to-close ratio, inventory, MoM, and YoY trends.
 - Semantic property search using listing-description embeddings and cosine similarity.
@@ -91,7 +91,8 @@ flowchart LR
 5. The orchestrator invokes only the required specialized agent. A mixed search-and-market request runs both agents concurrently.
 6. Agents query MySQL, embedding indexes, or the RAG knowledge index.
 7. Results return through one unified, mobile-formatted WhatsApp response.
-8. Email requests stop at a complete preview unless the same user separately approves the exact draft ID.
+8. A property search without a saved or stated maximum price pauses and asks “What is your budget?” before querying listings.
+9. Email requests stop at a complete preview unless the same user separately approves the exact draft ID.
 
 ## Data Sources
 
@@ -240,7 +241,9 @@ npm run week3
 - `getSession()` creates or restores one user's current preferences.
 - `updateSession()` merges new criteria with existing criteria.
 - `clearSession()` implements `reset`, `restart`, and `start over` without changing MLS data.
-- `handleMessage()` parses a message, asks for missing city/landmark or bedrooms, queries listings, remembers the last results, and supports numbered selection.
+- `handleMessage()` parses a message, asks for missing city/landmark, budget, or bedrooms, queries listings, remembers the last results, and supports numbered selection.
+- If the user gives a location but no price, the location is saved and the assistant asks “What is your budget?” before searching.
+- Direct replies such as `600k`, `$750,000`, and `My budget is 1.2m` are accepted as maximum-price follow-ups.
 - A follow-up such as “only show homes under $430,000” reuses the prior city and other preferences.
 - Only five property cards are shown at a time for an interactive experience.
 
@@ -559,11 +562,11 @@ Scan the QR code from WhatsApp → Linked Devices. Channel connection health is 
 
 A five-minute presentation can demonstrate several capabilities with a small number of interactions:
 
-1. **Mixed intent:** “Find affordable homes in Pasadena and tell me whether prices are rising.” This shows WhatsApp, intent classification, parallel property search, market analytics, both databases, and unified output.
-2. **Conversation memory:** “Only show me homes under $430,000.” This shows that the city and prior context persist.
-3. **Semantic recommendation:** Ask for a “charming craftsman with mountain views,” select one result, and request similar homes. This shows embeddings, cosine similarity, hybrid recommendations, and sold-comp price validation.
-4. **RAG:** Ask “What does DOM mean?” This shows retrieval from trusted knowledge and source-grounded answering.
-5. **Email guardrail:** Request a weekly report email, show the full `pending_approval` preview, then separately approve its exact UUID. This demonstrates that outbound action requires a human decision.
+1. **Budget clarification:** “Help me find a home in Concord.” The assistant saves Concord and asks “What is your budget?” Reply “600k” to continue the same search.
+2. **Mixed intent:** “Find homes in Pasadena under $800,000 and tell me whether prices are rising.” This shows intent classification, parallel property search, market analytics, both databases, and unified output.
+3. **Conversation memory:** “Only show me two bathrooms.” This shows that the city, budget, and prior context persist.
+4. **Semantic recommendation:** Ask for a “charming craftsman with mountain views,” select one result, and request similar homes. This shows embeddings, cosine similarity, hybrid recommendations, and sold-comp price validation.
+5. **RAG and email guardrail:** Ask “What does DOM mean?”, then request a weekly report email, show the `pending_approval` preview, and separately approve its exact UUID.
 
 ## Safety Guardrails
 

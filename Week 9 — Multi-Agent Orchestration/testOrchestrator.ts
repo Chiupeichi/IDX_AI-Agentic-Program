@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { clearSession, getSession } from "../Week4 - Conversational Property Search Agent/session";
+import { createDefaultAgentRegistry } from "./agents";
 import { classifyIntent } from "./classifier";
 import { orchestrate } from "./orchestrator";
 import type { AgentName, AgentRegistry } from "./types";
@@ -21,6 +23,8 @@ assert.equal(
 assert.equal(classifyIntent("What does DOM mean?"), "knowledge");
 assert.equal(classifyIntent("What columns are in california_sold?"), "knowledge");
 assert.equal(classifyIntent("What homes are in Irvine?"), "search");
+assert.equal(classifyIntent("600k"), "search");
+assert.equal(classifyIntent("My budget is $750,000"), "search");
 assert.equal(classifyIntent("Draft an email with these properties"), "email");
 assert.equal(
   classifyIntent(
@@ -99,6 +103,20 @@ assert.deepEqual(calls, []);
 
 await assert.rejects(() => orchestrate("", "user", agents), /query is required/);
 await assert.rejects(() => orchestrate("Find homes", "", agents), /userId is required/);
+
+const budgetUser = "week9-budget-prompt-user";
+clearSession(budgetUser);
+const defaultAgents = createDefaultAgentRegistry();
+assert.equal(
+  await defaultAgents.propertySearchAgent({
+    query: "Help me find a home in Concord",
+    userId: budgetUser,
+  }),
+  "What is your budget?"
+);
+assert.equal(getSession(budgetUser).city, "Concord");
+assert.equal(getSession(budgetUser).maxPrice, undefined);
+clearSession(budgetUser);
 
 console.log(
   "Week 9 orchestration: PASS (five-agent routing, parallel mixed intent, unified response)"

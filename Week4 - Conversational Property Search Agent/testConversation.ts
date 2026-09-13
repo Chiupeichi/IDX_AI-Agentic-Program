@@ -10,6 +10,12 @@ async function run() {
   try {
     assert.equal(
       await handleMessage(userId, "Find homes in Irvine"),
+      "What is your budget?"
+    );
+    assert.equal(getSession(userId).city, "Irvine");
+
+    assert.equal(
+      await handleMessage(userId, "My budget is $1,500,000"),
       "How many bedrooms do you need?"
     );
 
@@ -21,6 +27,7 @@ async function run() {
 
     const session = getSession(userId);
     assert.equal(session.city, "Irvine");
+    assert.equal(session.maxPrice, 1_500_000);
     assert.equal(session.beds, 3);
     assert.ok(session.lastResults && session.lastResults.length > 0);
 
@@ -30,12 +37,17 @@ async function run() {
 
     const uscUserId = "usc-conversation-test-user";
     clearSession(uscUserId);
-    const uscResponse = await handleMessage(uscUserId, "我想找 USC 附近的 2b2b");
+    assert.equal(
+      await handleMessage(uscUserId, "我想找 USC 附近的 2b2b"),
+      "What is your budget?"
+    );
+    const uscResponse = await handleMessage(uscUserId, "Under $1,500,000");
     assert.match(uscResponse, /I found \d+ matching listings/);
     assert.match(uscResponse, /miles from landmark/);
     assert.equal(getSession(uscUserId).near, "USC");
     assert.equal(getSession(uscUserId).beds, 2);
     assert.equal(getSession(uscUserId).baths, 2);
+    assert.equal(getSession(uscUserId).maxPrice, 1_500_000);
 
     assert.equal(
       await handleMessage(userId, "reset"),

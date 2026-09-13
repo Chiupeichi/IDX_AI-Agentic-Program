@@ -61,8 +61,19 @@ export function createDefaultAgentRegistry(): AgentRegistry {
       if (filters.city) updates.near = undefined;
       if (filters.near) updates.city = undefined;
       const mergedFilters = { ...currentSession, ...updates };
+      const persistPendingFilters = () =>
+        sessionModule.updateSession(userId, {
+          ...updates,
+          selectedListingId: undefined,
+          conversationStep: currentSession.conversationStep + 1,
+        });
       if (!mergedFilters.city && !mergedFilters.near) {
+        persistPendingFilters();
         return "Which city or landmark are you interested in?";
+      }
+      if (mergedFilters.maxPrice === undefined) {
+        persistPendingFilters();
+        return "What is your budget?";
       }
       const listings = await searchModule.searchActiveListings(mergedFilters, 1, 5);
       sessionModule.updateSession(userId, {
