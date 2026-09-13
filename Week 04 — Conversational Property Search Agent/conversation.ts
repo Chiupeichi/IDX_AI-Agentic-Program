@@ -75,6 +75,11 @@ export async function handleMessage(
   }
 
   const parsedFilters = parsePropertyQuery(message);
+  const startsNewLocationSearch = Boolean(
+    (parsedFilters.city || parsedFilters.near) &&
+      parsedFilters.maxPrice === null &&
+      /\b(?:find|search|show me|look(?:ing)? for)\b/i.test(message)
+  );
 
   const updates: Partial<UserSession> = {};
 
@@ -89,6 +94,12 @@ export async function handleMessage(
 
   if (parsedFilters.maxPrice) {
     updates.maxPrice = parsedFilters.maxPrice;
+  }
+
+  if (startsNewLocationSearch) {
+    updates.maxPrice = undefined;
+    updates.selectedListingId = undefined;
+    updates.lastResults = undefined;
   }
 
   if (parsedFilters.beds) {

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { closePool } from "../Week 03 — MLS Database Integration/mysql";
 import { handleMessage } from "./conversation";
-import { clearSession, getSession } from "./session";
+import { clearSession, getSession, updateSession } from "./session";
 
 async function run() {
   const userId = "conversation-test-user";
@@ -48,6 +48,23 @@ async function run() {
     assert.equal(getSession(uscUserId).beds, 2);
     assert.equal(getSession(uscUserId).baths, 2);
     assert.equal(getSession(uscUserId).maxPrice, 1_500_000);
+
+    const existingBudgetUser = "existing-budget-new-search-test-user";
+    clearSession(existingBudgetUser);
+    updateSession(existingBudgetUser, {
+      city: "San Jose",
+      maxPrice: 1_000_000,
+      beds: 3,
+      conversationStep: 5,
+    });
+    assert.equal(
+      await handleMessage(existingBudgetUser, "Help me find a home in San Jose"),
+      "What is your budget?"
+    );
+    assert.equal(getSession(existingBudgetUser).city, "San Jose");
+    assert.equal(getSession(existingBudgetUser).maxPrice, undefined);
+    assert.equal(getSession(existingBudgetUser).lastResults, undefined);
+    clearSession(existingBudgetUser);
 
     assert.equal(
       await handleMessage(userId, "reset"),

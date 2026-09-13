@@ -1,5 +1,9 @@
 import assert from "node:assert/strict";
-import { clearSession, getSession } from "../Week 04 — Conversational Property Search Agent/session";
+import {
+  clearSession,
+  getSession,
+  updateSession,
+} from "../Week 04 — Conversational Property Search Agent/session";
 import { createDefaultAgentRegistry } from "./agents";
 import { classifyIntent } from "./classifier";
 import { orchestrate } from "./orchestrator";
@@ -115,6 +119,21 @@ assert.equal(
   "What is your budget?"
 );
 assert.equal(getSession(budgetUser).city, "Concord");
+assert.equal(getSession(budgetUser).maxPrice, undefined);
+
+updateSession(budgetUser, {
+  city: "San Jose",
+  maxPrice: 1_000_000,
+  conversationStep: 27,
+});
+assert.equal(
+  await defaultAgents.propertySearchAgent({
+    query: "Help me find a home in San Jose",
+    userId: budgetUser,
+  }),
+  "What is your budget?"
+);
+assert.equal(getSession(budgetUser).city, "San Jose");
 assert.equal(getSession(budgetUser).maxPrice, undefined);
 clearSession(budgetUser);
 

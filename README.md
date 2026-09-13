@@ -243,6 +243,7 @@ npm run week3
 - `clearSession()` implements `reset`, `restart`, and `start over` without changing MLS data.
 - `handleMessage()` parses a message, asks for missing city/landmark, budget, or bedrooms, queries listings, remembers the last results, and supports numbered selection.
 - If the user gives a location but no price, the location is saved and the assistant asks “What is your budget?” before searching.
+- An explicit new search such as `Help me find a home in San Jose` clears any old saved budget when the new message does not include a price, so a previous city's budget is never silently reused.
 - Direct replies such as `600k`, `$750,000`, and `My budget is 1.2m` are accepted as maximum-price follow-ups.
 - A follow-up such as “only show homes under $430,000” reuses the prior city and other preferences.
 - Only five property cards are shown at a time for an interactive experience.

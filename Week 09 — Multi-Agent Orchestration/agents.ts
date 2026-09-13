@@ -55,11 +55,21 @@ export function createDefaultAgentRegistry(): AgentRegistry {
       }
 
       const filters = parsePropertyQuery(query);
+      const startsNewLocationSearch = Boolean(
+        (filters.city || filters.near) &&
+          filters.maxPrice === null &&
+          /\b(?:find|search|show me|look(?:ing)? for)\b/i.test(query)
+      );
       const updates = Object.fromEntries(
         Object.entries(filters).filter(([, value]) => value !== null)
       );
       if (filters.city) updates.near = undefined;
       if (filters.near) updates.city = undefined;
+      if (startsNewLocationSearch) {
+        updates.maxPrice = undefined;
+        updates.selectedListingId = undefined;
+        updates.lastResults = undefined;
+      }
       const mergedFilters = { ...currentSession, ...updates };
       const persistPendingFilters = () =>
         sessionModule.updateSession(userId, {
